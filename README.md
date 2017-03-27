@@ -31,7 +31,7 @@ You will need:
 
 1. Adafruit Huzzah ESP8266 (http://adafru.it/2471)
 2. Neopixel Ring (http://adafru.it/1586)
-3. 7-Segment LED (http://adafru.it/878)
+3. 7-Segment Alphanumeric LED (http://adafru.it/1911)
 4. Serial 16x4 LCD (ebay)
 5. PlatformIO
 6. Operating system that supports PlatformIO
