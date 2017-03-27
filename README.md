@@ -14,7 +14,7 @@ Project Breakdown:
         * BL - BLUE
         * GR - GREEN
         * YL - YELLOW
-        * SV - SIVLER
+        * SV - SILVER
     * Fades in-out upon arrival
 * 7-Segment LED
     * Displays arrival time (minutes)
