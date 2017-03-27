@@ -36,6 +36,7 @@ You will need:
 5. PlatformIO
 6. Operating system that supports PlatformIO
 7. FTDI cable (https://www.sparkfun.com/products/9717)
+8. WMATA API (http://developer.wmata.com)
 
 
 ### **Usage**
@@ -104,5 +105,5 @@ To upload the main.cpp code to the ESP8266, enter the following into a terminal 
 
         
 ### **Recognition and Credit**
-I would like to recognize [cjntaylor](https://github.com/cjntaylor/) and other users/projects for some inspiration and ideas.
+Thanks to WMATA for providing the API!
 
