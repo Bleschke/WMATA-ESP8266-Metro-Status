@@ -2,7 +2,7 @@
 
 Brian Leschke 2017
 
- ** Update 4/9/17: Project will begin towards the end of April or beginning of May.
+ ** Update 4/9/17: Project has begun! 
 
 ## **Overview**
 
@@ -35,7 +35,7 @@ You will need:
 2. Neopixel Ring (http://adafru.it/1586)
 3. 7-Segment Alphanumeric LED (http://adafru.it/1911)
 4. Serial 16x4 LCD (ebay)
-5. PlatformIO
+5. PlatformIO / Arduino programming software
 6. Operating system that supports PlatformIO
 7. FTDI cable (https://www.sparkfun.com/products/9717)
 8. WMATA API (http://developer.wmata.com)
