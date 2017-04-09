@@ -2,6 +2,8 @@
 
 Brian Leschke 2017
 
+ ** Update 4/9/17: Project will begin towards the end of April or beginning of May.
+
 ## **Overview**
 
  An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 16x4 LCD screen (station updates).
