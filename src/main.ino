@@ -12,7 +12,7 @@
  * -- Changelog: -- 
  * 
  * 3/26/17 - Formed idea, sketched project on paper. 
- * 4/9/17  - Created files and started code!
+ * 4/9/17  - Created files and coded Neopixel ring and button to change stations.
  * // - 
  *
  * 
