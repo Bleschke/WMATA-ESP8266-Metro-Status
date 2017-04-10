@@ -63,11 +63,17 @@ const char* ap_default_psk  = "esp8266";   // Default PSK.
 
 const char   WMATAServer[]   = "https://api.wmata.com/StationPrediction.svc/json/GetPrediction/"; // name address for WMATA (using DNS)
 const String myKey           = "API_KEY";           // See: https://developer.wmata.com/ (change here with your Primary/Secondary API KEY)
-const String myStationCodeA  = "STATION_CODE";      // Metro station code 1
-const String myStationCodeB  = "STATION_CODE";      // Metro station code 2
-const String myStationCodeC  = "STATION_CODE";      // Metro station code 3
-const String myStationCodeD  = "STATION_CODE";      // Metro station code 4
+const String stationCodeA    = "STATION_CODE";      // Metro station code 1
+const String stationCodeB    = "STATION_CODE";      // Metro station code 2
+const String stationCodeC    = "STATION_CODE";      // Metro station code 3
+const String stationCodeD    = "STATION_CODE";      // Metro station code 4
 
+const String stationA        = "STATION_NAME";      // Metro station name. ex. Shady Grove
+const String stationB        = "STATION_NAME";      // Metro station name. ex. Shady Grove
+const String stationC        = "STATION_NAME";      // Metro station name. ex. Shady Grove
+const String stationD        = "STATION_NAME";      // Metro station name. ex. Shady Grove
+  
+  
 long metroCheckInterval              = 120000;      // DO NOT SET LOWER THAN 2 min default. Time (milliseconds) until next metro train check.
 unsigned long previousMetroMillis    = 0;           // Do not change.
 
@@ -322,38 +328,94 @@ void setup()
               
 void DetermineStation()
 {
-  int counter = 0;
+  int counter = 1;
   //Handle input
-  digitalRead(buttonPin);
+  digitalRead(changeButton);
   if(buttonPin = HIGH)
   {
     counter = counter + 1;
     //Reset count if over max mode number
     if(counter == 1 )
     {
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print(stationA);
+      delay(2000);      
       MetroCheckA();
-      counter = counter + 1;
     }
     else if (counter == 2)
     {
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print(stationB)
+      delay(2000);     
       MetroCheckB();
-      counter = counter + 1;
     }
     else if (counter == 3)
     {
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print(stationC)
+      delay(2000);     
       MetroCheckC();
-      counter = counter + 1;
+    }
+    else if (counter == 4)
+    {
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print(stationD);
+      delay(2000);     
+      MetroCheckD();
+    }
+    else
+    {
+      serial.println("ERROR: Value is < 0 or > 4.");
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("ERROR: Button H");
+    }
+  }
+  else
+  {
+    if(counter == 1 )
+    {
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print(stationA);
+      delay(2000);  
+      MetroCheckA();
     }
     else if (counter == 2)
     {
-      MetroCheckD();
-      counter = 0;
-    }
-    else
-      serial.println("ERROR");
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print("ERROR: Button");
+      lcd.print(stationB);
+      delay(2000);  
+      MetroCheckB();
+    }
+    else if (counter == 3)
+    {
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print(stationC);
+      delay(2000);  
+      MetroCheckC();
+    }
+    else if (counter == 4)
+    {
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print(stationD);
+      delay(2000);  
+      MetroCheckD();
+    }
+    else
+    {
+      serial.println("ERROR: Value is < 0 or > 4.");
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("ERROR: Button L");
+    }
   }
 }
 
@@ -437,12 +499,12 @@ void GetTime()
 void FadeInOut(byte red, byte green, byte blue){
   float r, g, b;
       
-  for(int k = 0; k < 256; k=k+1) { 
+  for(int k = 128; k < 256; k=k+1) { 
     r = (k/256.0)*red;
     g = (k/256.0)*green;
     b = (k/256.0)*blue;
     setAll(r,g,b);
-    showStrip();
+    pixels.show();
   }
      
   for(int k = 255; k >= 128; k=k-2) {
