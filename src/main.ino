@@ -11,9 +11,9 @@
  *
  * -- Changelog: -- 
  * 
- * 3/26/17 - Formed idea, sketched project on paper. 
- * 4/9/17  - Created files and coded Neopixel ring and button to change stations.
- * // - 
+ * 3/26/2017 - Formed idea, sketched project on paper. 
+ * 4/9/2017  - Created files and coded Neopixel ring and button to change stations.
+ * 4/10/2017 - Fixed errors and made modifications 
  *
  * 
 */
