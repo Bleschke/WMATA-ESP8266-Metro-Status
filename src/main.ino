@@ -11,7 +11,7 @@
  *
  * -- Changelog: -- 
  * 
- * 4/9/17 - Create .ino and data files
+ * 4/9/17 - Create .ino, data files, beginning to code project!!
  * // - 
  * // - 
  *
