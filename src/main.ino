@@ -170,17 +170,16 @@ void setup()
   lcd.begin(20, 4);
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("WMATA Metro Stat");
+  lcd.print("WMATA Status");
   lcd.setCursor(0,1);
   lcd.print("Version 1.0");
   lcd.setCursor(0,2);
   lcd.print("Brian Leschke");  
-  delay(2000);
-  
-  
+  delay(3000);
   
   pixels.setPixelColor(0, pixels.Color(0,0,0)); // OFF
   pixels.show(); // This sends the updated pixel color to the hardware.
+  rainbowCycle(20);  // Loading screen
   
   String station_ssid = ""; // Do Not Change
   String station_psk = "";  // Do Not Change
@@ -285,7 +284,7 @@ void setup()
   }
   else
   {
-    Serial.println("Can not connect to WiFi station. Go into AP mode.");
+    Serial.println("Failed connecting to WiFi station. Go into AP mode.");
     lcd.clear(0,1);
     lcd.setCursor(0,1);
     lcd.print("WiFi: Failed)";
@@ -391,9 +390,45 @@ void FadeInOut(byte red, byte green, byte blue){
     g = (k/256.0)*green;
     b = (k/256.0)*blue;
     setAll(r,g,b);
-    showStrip();
+    pixels.show();
   }
 }
+              
+void rainbowCycle(int SpeedDelay) {
+  byte *c;
+  uint16_t i, j;
+
+  for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
+    for(i=0; i< pixels.numPixels; i++) {
+      c=Wheel(((i * 256 / pixels.numPixels) + j) & 255);
+      pixels.setPixelColor(i, *c, *(c+1), *(c+2));
+    }
+    pixels.show();
+    delay(SpeedDelay);
+  }
+}
+
+byte * Wheel(byte WheelPos) {
+  static byte c[3];
+  
+  if(WheelPos < 85) {
+   c[0]=WheelPos * 3;
+   c[1]=255 - WheelPos * 3;
+   c[2]=0;
+  } else if(WheelPos < 170) {
+   WheelPos -= 85;
+   c[0]=255 - WheelPos * 3;
+   c[1]=0;
+   c[2]=WheelPos * 3;
+  } else {
+   WheelPos -= 170;
+   c[0]=0;
+   c[1]=WheelPos * 3;
+   c[2]=255 - WheelPos * 3;
+  }
+
+  return c;
+}             
 
 // ---------- ESP 8266 FUNCTIONS - SOME CAN BE REMOVED ----------
 
