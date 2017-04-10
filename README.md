@@ -58,6 +58,8 @@ The following libraries are required for this project:
   * Adafruit_Neopixel
   * ESP8266WiFi
   * NTPClient
+  * [Adafuit LED Backpack](https://github.com/adafruit/Adafruit-LED-Backpack-Library)
+  * [Adafuit GFX](https://github.com/adafruit/Adafruit-GFX-Library)
   * [JSON Streaming Parser](https://github.com/squix78/json-streaming-parser)
         
 ## **Uploading**
