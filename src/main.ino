@@ -71,6 +71,8 @@ const String myStationCodeD  = "STATION_CODE";      // Metro station code 4
 long metroCheckInterval              = 120000;      // DO NOT SET LOWER THAN 2 min default. Time (milliseconds) until next metro train check.
 unsigned long previousMetroMillis    = 0;           // Do not change.
 
+int changeButton             = 13;
+
 // ** NTP SERVER INFORMATION **
 // const char* timeHost = "time-c.nist.gov";
 const char* timeHost    = "129.6.15.30";
@@ -177,16 +179,16 @@ void setup()
   lcd.print("Brian Leschke");  
   delay(3000);
   
-  pixels.setPixelColor(0, pixels.Color(0,0,0)); // OFF
-  pixels.show(); // This sends the updated pixel color to the hardware.
-  rainbowCycle(20);  // Loading screen
-  
   String station_ssid = ""; // Do Not Change
   String station_psk = "";  // Do Not Change
 
   Serial.begin(115200);
   pixels.begin(); // This initializes the NeoPixel library.
-  pinMode(txPin, OUTPUT) ; // Initialize Morse Code transmission output.
+  pinMode(changeButton, INPUT);
+  
+  pixels.setPixelColor(0, pixels.Color(0,0,0)); // OFF
+  pixels.show(); // This sends the updated pixel color to the hardware.
+  rainbowCycle(20);  // Loading screen
   
   delay(100);
 
@@ -317,14 +319,72 @@ void setup()
 // ---------- OTA CONFIGURATION - DO NOT MODIFY ----------
 
 // ---------- ESP 8266 FUNCTIONS - SOME CAN BE REMOVED ----------
+              
+void DetermineStation()
+{
+  int counter = 0;
+  //Handle input
+  digitalRead(buttonPin);
+  if(buttonPin = HIGH)
+  {
+    counter = counter + 1;
+    //Reset count if over max mode number
+    if(counter == 1 )
+    {
+      MetroCheckA();
+      counter = counter + 1;
+    }
+    else if (counter == 2)
+    {
+      MetroCheckB();
+      counter = counter + 1;
+    }
+    else if (counter == 3)
+    {
+      MetroCheckC();
+      counter = counter + 1;
+    }
+    else if (counter == 2)
+    {
+      MetroCheckD();
+      counter = 0;
+    }
+    else
+      serial.println("ERROR");
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("ERROR: Button");
+  }
+}
 
-void MetroCheck()
+void MetroCheckA()
 {
   
  // *** MAIN CODE HERE :) *** 
   
 }
 
+void MetroCheckB()
+{
+  
+ // *** MAIN CODE HERE :) *** 
+  
+}
+              
+void MetroCheckC()
+{
+  
+ // *** MAIN CODE HERE :) *** 
+  
+}              
+              
+void MetroCheckD()
+{
+  
+ // *** MAIN CODE HERE :) *** 
+  
+}
+              
 void GetTime()
 {
   Serial.print("connecting to ");
@@ -449,7 +509,7 @@ void loop()
   
   if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
     Serial.println("Checking for Metro Train arrivals");
-    MetroCheck();
+    DetermineStation();
     previousMetroMillis = currentMetroMillis; //remember the time(millis)
   }
   else {
