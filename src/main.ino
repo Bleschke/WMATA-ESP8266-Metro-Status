@@ -11,8 +11,8 @@
  *
  * -- Changelog: -- 
  * 
- * 4/9/17 - Create .ino, data files, beginning to code project!!
- * // - 
+ * 3/26/17 - Formed idea, sketched project on paper. 
+ * 4/9/17  - Create files and started code!
  * // - 
  *
  * 
@@ -269,4 +269,95 @@ void setup()
 
 // ---------- OTA CONFIGURATION - DO NOT MODIFY ----------
 
-// ---------- ESP 8266 FUNCTIONS - CAN BE REMOVED ----------
+// ---------- ESP 8266 FUNCTIONS - SOME CAN BE REMOVED ----------
+// *** MAIN CODE HERE ***
+
+
+
+
+
+
+void GetTime()
+{
+  Serial.print("connecting to ");
+  Serial.println(timeHost);
+
+  // Use WiFiClient class to create TCP connections
+  WiFiClient client;
+
+  if (!client.connect(timeHost, timePort)) {
+    Serial.println("NIST Timeservers: connection failed");
+    return;
+  }
+  
+  // This will send the request to the server
+  client.print("HEAD / HTTP/1.1\r\nAccept: */*\r\nUser-Agent: Mozilla/4.0 (compatible; ESP8266 NodeMcu Lua;)\r\n\r\n");
+
+  delay(100);
+
+  // Read all the lines of the reply from server and print them to Serial
+  // expected line is like : Date: Thu, 01 Jan 2015 22:00:14 GMT
+  char buffer[12];
+
+  while(client.available())
+  {
+    String line = client.readStringUntil('\r');
+
+    if (line.indexOf("Date") != -1)
+    {
+      Serial.print("=====>");
+    } else
+    {
+      // Serial.print(line);
+      // date starts at pos 10. We don't need the year.
+      TimeDate = line.substring(10);
+      Serial.println("UTC Time and Date:");
+      Serial.println(TimeDate);
+      // time starts at pos 14
+      //TimeDate = line.substring(10, 15);
+      //TimeDate.toCharArray(buffer, 10);
+      //Serial.println("UTC Date:");    // MM-DD
+      //Serial.println(buffer);
+      TimeDate = line.substring(16, 24);
+      TimeDate.toCharArray(buffer, 10);
+      Serial.println("UTC Time:");    // HH:MM:SS
+      Serial.println(buffer);
+    }
+  }
+}
+
+// ---------- ESP 8266 FUNCTIONS - SOME CAN BE REMOVED ----------
+
+void loop()
+{
+  // Handle OTA server.
+  ArduinoOTA.handle();
+  yield();
+  
+
+  // ---------- USER CODE GOES HERE ----------
+
+  // ** Receive Time (NTP)
+  GetTime();
+
+  // ** Metro Check **
+  unsigned long currentMetroMillis = millis();
+  
+  if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
+    Serial.println("Checking for Metro Train arrivals");
+    MetroCheck();
+    previousMetroMillis = currentMetroMillis; //remember the time(millis)
+  }
+  else {
+    Serial.println("Bypassing Metro Check. Less than 2 minutes since last check.");
+    Serial.println("Previous Millis: ");
+    Serial.println(previousMetroMillis);
+    Serial.println("Current Millis: ");
+    Serial.println(currentMetroMillis);
+    Serial.println("Subtracted Millis: ");
+    Serial.println(currentMetroMillis-previousMetroMillis);
+    Serial.println();
+  }
+  
+  // ---------- USER CODE GOES HERE ----------
+}
