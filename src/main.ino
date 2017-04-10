@@ -28,6 +28,14 @@
 #include <ArduinoJson.h>
 #include <SPI.h>
 
+#include <I2CIO.h>
+#include <LCD.h>
+#include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
+#include <LiquidCrystal_SR.h>
+#include <LiquidCrystal_SR2W.h>
+#include <LiquidCrystal_SR3W.h>
+
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
   #include <avr/power.h>
@@ -156,6 +164,16 @@ bool saveConfig(String *ssid, String *pass)
 
 void setup()
 {
+  lcd.begin(20, 4);
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("WMATA Metro Stat");
+  lcd.setCursor(0,1);
+  lcd.print("Version 1.0");
+  lcd.setCursor(0,2);
+  lcd.print("Brian Leschke");  
+  delay(2000);
+  
   pixels.setPixelColor(0, pixels.Color(0,0,0)); // OFF
   pixels.show(); // This sends the updated pixel color to the hardware.
   
@@ -186,6 +204,9 @@ void setup()
   if (!SPIFFS.begin())
   {
     Serial.println("Failed to mount file system");
+    lcd.clear();
+    lcd.setCursor(0,1);
+    lcd.print("FAIL: Filesystem");
     return;
   }
 
@@ -214,9 +235,12 @@ void setup()
     // ... Try to connect to WiFi station.
     WiFi.begin(station_ssid.c_str(), station_psk.c_str());
 
-    // ... Pritn new SSID
+    // ... Print new SSID
     Serial.print("new SSID: ");
     Serial.println(WiFi.SSID());
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("SSID: " + Wifi.SSID());
 
     // ... Uncomment this for debugging output.
     //WiFi.printDiag(Serial);
@@ -228,6 +252,8 @@ void setup()
   }
 
   Serial.println("Wait for WiFi connection.");
+  lcd.setCursor(0,1);
+  lcd.print("WiFi: Connecting");
 
   // ... Give ESP 10 seconds to connect to station.
   unsigned long startTime = millis();
@@ -246,11 +272,19 @@ void setup()
     // ... print IP Address
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
+    lcd.clear(0,1);
+    lcd.setCursor(0,1);
+    lcd.print("WiFi: Connected");
+    lcd.serCursor(0,2);
+    lcd.print(WiFi.localIP())
   }
   else
   {
     Serial.println("Can not connect to WiFi station. Go into AP mode.");
-    
+    lcd.clear(0,1);
+    lcd.setCursor(0,1);
+    lcd.print("WiFi: Failed)";
+              
     // Go into software AP mode.
     WiFi.mode(WIFI_AP);
 
@@ -260,6 +294,15 @@ void setup()
 
     Serial.print("IP address: ");
     Serial.println(WiFi.softAPIP());
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("AP PROGRAM MODE");
+    lcd.setCursor(0,1);
+    lcd.print(WiFi.softAPIP());
+    lcd.setCursor(0,2);
+    lcd.print("Connect to");
+    lcd.setCursor(0,3);
+    lcd.print("Arduino software");     
   }
 
   // Start OTA server.
@@ -272,7 +315,10 @@ void setup()
 // ---------- ESP 8266 FUNCTIONS - SOME CAN BE REMOVED ----------
 // *** MAIN CODE HERE ***
 
-
+void MetroCheck()
+{
+  
+}
 
 
 
@@ -320,9 +366,29 @@ void GetTime()
       //Serial.println(buffer);
       TimeDate = line.substring(16, 24);
       TimeDate.toCharArray(buffer, 10);
-      Serial.println("UTC Time:");    // HH:MM:SS
+      Serial.println("UTC Time:");    // HH:MM:SS UTC
       Serial.println(buffer);
     }
+  }
+}
+
+void FadeInOut(byte red, byte green, byte blue){
+  float r, g, b;
+      
+  for(int k = 0; k < 256; k=k+1) { 
+    r = (k/256.0)*red;
+    g = (k/256.0)*green;
+    b = (k/256.0)*blue;
+    setAll(r,g,b);
+    showStrip();
+  }
+     
+  for(int k = 255; k >= 128; k=k-2) {
+    r = (k/256.0)*red;
+    g = (k/256.0)*green;
+    b = (k/256.0)*blue;
+    setAll(r,g,b);
+    showStrip();
   }
 }
 
