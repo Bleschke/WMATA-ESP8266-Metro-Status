@@ -12,7 +12,7 @@
  * -- Changelog: -- 
  * 
  * 3/26/17 - Formed idea, sketched project on paper. 
- * 4/9/17  - Create files and started code!
+ * 4/9/17  - Created files and started code!
  * // - 
  *
  * 
@@ -35,6 +35,8 @@
 #include <LiquidCrystal_SR.h>
 #include <LiquidCrystal_SR2W.h>
 #include <LiquidCrystal_SR3W.h>
+#include <Adafruit_LEDBackpack.h>
+#include <Adafruit_GFX.h>
 
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
@@ -46,7 +48,7 @@
 // ** mDNS and OTA Constants **
 #define HOSTNAME "ESP8266-OTA-"     // Hostename. The setup function adds the Chip ID at the end.
 #define PIN            0            // Pin used for Neopixel communication
-#define NUMPIXELS      24            // Number of Neopixels connected to Arduino
+#define NUMPIXELS      24           // Number of Neopixels connected to Arduino
 
 // Neopixel Setup
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
@@ -164,6 +166,7 @@ bool saveConfig(String *ssid, String *pass)
 
 void setup()
 {
+  print(----); // 7 Segment LED
   lcd.begin(20, 4);
   lcd.clear();
   lcd.setCursor(0,0);
@@ -173,6 +176,8 @@ void setup()
   lcd.setCursor(0,2);
   lcd.print("Brian Leschke");  
   delay(2000);
+  
+  
   
   pixels.setPixelColor(0, pixels.Color(0,0,0)); // OFF
   pixels.show(); // This sends the updated pixel color to the hardware.
@@ -313,15 +318,13 @@ void setup()
 // ---------- OTA CONFIGURATION - DO NOT MODIFY ----------
 
 // ---------- ESP 8266 FUNCTIONS - SOME CAN BE REMOVED ----------
-// *** MAIN CODE HERE ***
 
 void MetroCheck()
 {
   
+ // *** MAIN CODE HERE :) *** 
+  
 }
-
-
-
 
 void GetTime()
 {
