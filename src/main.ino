@@ -14,11 +14,12 @@
  * 3/26/2017 - Formed idea, sketched project on paper. 
  * 4/9/2017  - Created files and coded Neopixel ring and button to change stations.
  * 4/10/2017 - Fixed errors and made modifications 
- *
+ * 4/11/2017 - Fixed errors and refined code
  * 
 */
 
 // includes
+#include <Wire.h> // Enable this line if using Arduino Uno, Mega, etc.
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
@@ -35,8 +36,10 @@
 #include <LiquidCrystal_SR.h>
 #include <LiquidCrystal_SR2W.h>
 #include <LiquidCrystal_SR3W.h>
-#include <Adafruit_LEDBackpack.h>
 #include <Adafruit_GFX.h>
+#include <gfxfont.h>
+#include "Adafruit_LEDBackpack.h"
+
 
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
@@ -52,6 +55,14 @@
 
 // Neopixel Setup
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+int waitTime = 10;
+
+
+// 7-segment LED setup
+Adafruit_7segment matrix = Adafruit_7segment();
+
+// LCD setup
+LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
 
 
 // ** Default WiFi connection Information **
@@ -174,7 +185,9 @@ bool saveConfig(String *ssid, String *pass)
 
 void setup()
 {
-  print(----); // 7 Segment LED
+  matrix.begin(0x70);
+  matrix.print(0000);  // 7 Segment LED
+  matrix.writeDisplay();
   lcd.begin(20, 4);
   lcd.clear();
   lcd.setCursor(0,0);
@@ -252,7 +265,7 @@ void setup()
     Serial.println(WiFi.SSID());
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print("SSID: " + Wifi.SSID());
+    lcd.print("SSID: " + WiFi.SSID());
 
     // ... Uncomment this for debugging output.
     //WiFi.printDiag(Serial);
@@ -284,18 +297,18 @@ void setup()
     // ... print IP Address
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
-    lcd.clear(0,1);
+    lcd.clear();
     lcd.setCursor(0,1);
     lcd.print("WiFi: Connected");
-    lcd.serCursor(0,2);
-    lcd.print(WiFi.localIP())
+    lcd.setCursor(0,2);
+    lcd.print(WiFi.localIP());
   }
   else
   {
     Serial.println("Failed connecting to WiFi station. Go into AP mode.");
-    lcd.clear(0,1);
+    lcd.clear();
     lcd.setCursor(0,1);
-    lcd.print("WiFi: Failed)";
+    lcd.print("WiFi: Failed to connect to AP");
               
     // Go into software AP mode.
     WiFi.mode(WIFI_AP);
@@ -331,7 +344,7 @@ void DetermineStation()
   int counter = 1;
   //Handle input
   digitalRead(changeButton);
-  if(buttonPin = HIGH)
+  if(changeButton = HIGH)
   {
     counter = counter + 1;
     //Reset count if over max mode number
@@ -347,7 +360,7 @@ void DetermineStation()
     {
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print(stationB)
+      lcd.print(stationB);
       delay(2000);     
       MetroCheckB();
     }
@@ -355,7 +368,7 @@ void DetermineStation()
     {
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print(stationC)
+      lcd.print(stationC);
       delay(2000);     
       MetroCheckC();
     }
@@ -369,7 +382,7 @@ void DetermineStation()
     }
     else
     {
-      serial.println("ERROR: Value is < 0 or > 4.");
+      Serial.println("ERROR: Value is < 0 or > 4.");
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("ERROR: Button H");
@@ -411,7 +424,7 @@ void DetermineStation()
     }
     else
     {
-      serial.println("ERROR: Value is < 0 or > 4.");
+      Serial.println("ERROR: Value is < 0 or > 4.");
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("ERROR: Button L");
@@ -423,6 +436,7 @@ void MetroCheckA()
 {
   
  // *** MAIN CODE HERE :) *** 
+ FadeInOut(255, 0, 0, waitTime); // Red
   
 }
 
@@ -430,13 +444,15 @@ void MetroCheckB()
 {
   
  // *** MAIN CODE HERE :) *** 
-  
+ FadeInOut(0, 255, 0, waitTime); // Green
+ 
 }
               
 void MetroCheckC()
 {
   
  // *** MAIN CODE HERE :) *** 
+ FadeInOut(0, 0, 255, waitTime); // Blue
   
 }              
               
@@ -496,61 +512,52 @@ void GetTime()
   }
 }
 
-void FadeInOut(byte red, byte green, byte blue){
-  float r, g, b;
-      
-  for(int k = 128; k < 256; k=k+1) { 
-    r = (k/256.0)*red;
-    g = (k/256.0)*green;
-    b = (k/256.0)*blue;
-    setAll(r,g,b);
-    pixels.show();
+void FadeInOut(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
+
+  for(uint8_t b=128; b <255; b++) {
+     for(uint8_t i=0; i < pixels.numPixels(); i++) {
+        pixels.setPixelColor(i, red*b/255, green*b/255, blue*b/255);
+     }
+     pixels.show();
+     delay(wait);
   }
-     
-  for(int k = 255; k >= 128; k=k-2) {
-    r = (k/256.0)*red;
-    g = (k/256.0)*green;
-    b = (k/256.0)*blue;
-    setAll(r,g,b);
-    pixels.show();
+
+  for(uint8_t b=255; b > 128; b--) {
+     for(uint8_t i=0; i < pixels.numPixels(); i++) {
+        pixels.setPixelColor(i, red*b/255, green*b/255, blue*b/255);
+     }
+     pixels.show();
+     delay(wait);
   }
 }
               
-void rainbowCycle(int SpeedDelay) {
-  byte *c;
+// Slightly different, this makes the rainbow equally distributed throughout
+void rainbowCycle(uint8_t wait) {
   uint16_t i, j;
-
+ 
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
-    for(i=0; i< pixels.numPixels; i++) {
-      c=Wheel(((i * 256 / pixels.numPixels) + j) & 255);
-      pixels.setPixelColor(i, *c, *(c+1), *(c+2));
+    for(i=0; i< pixels.numPixels(); i++) {
+      pixels.setPixelColor(i, Wheel(((i * 256 / pixels.numPixels()) + j) & 255));
     }
     pixels.show();
-    delay(SpeedDelay);
+    delay(wait);
+  }
+}
+ 
+// Input a value 0 to 255 to get a color value.
+// The colours are a transition r - g - b - back to r.
+uint32_t Wheel(byte WheelPos) {
+  if(WheelPos < 85) {
+   return pixels.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+  } else if(WheelPos < 170) {
+   WheelPos -= 85;
+   return pixels.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  } else {
+   WheelPos -= 170;
+   return pixels.Color(0, WheelPos * 3, 255 - WheelPos * 3);
   }
 }
 
-byte * Wheel(byte WheelPos) {
-  static byte c[3];
-  
-  if(WheelPos < 85) {
-   c[0]=WheelPos * 3;
-   c[1]=255 - WheelPos * 3;
-   c[2]=0;
-  } else if(WheelPos < 170) {
-   WheelPos -= 85;
-   c[0]=255 - WheelPos * 3;
-   c[1]=0;
-   c[2]=WheelPos * 3;
-  } else {
-   WheelPos -= 170;
-   c[0]=0;
-   c[1]=WheelPos * 3;
-   c[2]=255 - WheelPos * 3;
-  }
-
-  return c;
-}             
 
 // ---------- ESP 8266 FUNCTIONS - SOME CAN BE REMOVED ----------
 
