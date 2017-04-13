@@ -59,12 +59,12 @@
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 int waitTime = 10;
 
-uint32_t metroRed = strip.Color(209 ,18, 66);        // convert color value to name "metroRed"
-uint32_t metroBlue = strip.Color(0, 150, 214);       // convert color value to name "metroBlue"
-uint32_t metroOrange = strip.Color(248, 151, 29);    // convert color value to name "metroOrange"
-uint32_t metroYellow = strip.Color(255, 221, 0);     // convert color value to name "metroYellow"
-uint32_t metroGreen = strip.Color(0, 183, 96);       // convert color value to name "metroGreen"
-uint32_t metroSilver = strip.Color(167, 169, 172);   // convert color value to name "metroSilver"
+uint32_t metroRed = pixels.Color(209 ,18, 66);        // convert color value to name "metroRed"
+uint32_t metroBlue = pixels.Color(0, 150, 214);       // convert color value to name "metroBlue"
+uint32_t metroOrange = pixels.Color(248, 151, 29);    // convert color value to name "metroOrange"
+uint32_t metroYellow = pixels.Color(255, 221, 0);     // convert color value to name "metroYellow"
+uint32_t metroGreen = pixels.Color(0, 183, 96);       // convert color value to name "metroGreen"
+uint32_t metroSilver = pixels.Color(167, 169, 172);   // convert color value to name "metroSilver"
 
 // 7-segment LED setup
 Adafruit_7segment matrix = Adafruit_7segment();
@@ -442,45 +442,45 @@ void DetermineStation()
 
 void MetroCheckA()
 {
-  colorWipe(strip.Color(metroRed), 0); // set all neopixels to Red
+  colorWipe(pixels.Color(209 ,18, 66), 0); // set all neopixels to Red
   
   // *** MAIN CODE HERE :) *** 
   
   // If train is arriving 
-  FadeInOut(metroRed, waitTime); // Fade in and out Red
+  FadeInOut(209 ,18, 66, waitTime); // Fade in and out Red
   
 }
 
 void MetroCheckB()
 {
-  colorWipe(strip.Color(metroGreen), 0); // Set all neopixels to Green
+  colorWipe(pixels.Color(0, 183, 96), 0); // Set all neopixels to Green
   
   // *** MAIN CODE HERE :) *** 
   
   // If train is arriving 
-  FadeInOut(metroGreen, waitTime); // Fade in and out Green
+  FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
  
 }
               
 void MetroCheckC()
 {
-  colorWipe(strip.Color(metroBlue), 0); // Set all neopixels to Blue
+  colorWipe(pixels.Color(0, 150, 214), 0); // Set all neopixels to Blue
   
   // *** MAIN CODE HERE :) *** 
   
   // If train is arriving 
-  FadeInOut(metroBlue, waitTime); // Fade in and out Blue
+  FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
   
 }              
               
 void MetroCheckD()
 {
-  colorWipe(strip.Color(metroSilver), 0); // Set all neopixels to Silver
+  colorWipe(pixels.Color(167, 169, 172), 0); // Set all neopixels to Silver
   
   // *** MAIN CODE HERE :) *** 
   
   // If train is arriving 
-  FadeInOut(metroSilver, waitTime); // Fade in and out Silver
+  FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
   
 }
               
@@ -554,9 +554,9 @@ void FadeInOut(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
 
 // Fill the dots one after the other with a color
 void colorWipe(uint32_t c, uint8_t wait) {
-  for(uint16_t i=0; i<strip.numPixels(); i++) {
-      strip.setPixelColor(i, c);
-      strip.show();
+  for(uint16_t i=0; i<pixels.numPixels(); i++) {
+      pixels.setPixelColor(i, c);
+      pixels.show();
       delay(wait);
   }
 }
