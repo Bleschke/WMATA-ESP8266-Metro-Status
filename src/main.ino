@@ -15,7 +15,9 @@
  * 4/9/2017  - Created files and coded Neopixel ring and button to change stations.
  * 4/10/2017 - Fixed errors and made modifications 
  * 4/11/2017 - Fixed errors and refined code
- * 
+ * 4/13/2017 - Added metro colors
+ *
+ *
 */
 
 // includes
@@ -57,6 +59,12 @@
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 int waitTime = 10;
 
+uint32_t metroRed = strip.Color(209 ,18, 66);        // convert color value to name "red"
+uint32_t metroBlue = strip.Color(0, 150, 214);       // convert color value to name "blue"
+uint32_t metroOrange = strip.Color(248, 151, 29);    // convert color value to name "orange"
+uint32_t metroYellow = strip.Color(255, 221, 0);     // convert color value to name "yellow"
+uint32_t metroGreen = strip.Color(0, 183, 96);       // convert color value to name "green"
+uint32_t metroSilver = strip.Color(167, 169, 172);   // convert color value to name "silver"
 
 // 7-segment LED setup
 Adafruit_7segment matrix = Adafruit_7segment();
@@ -436,7 +444,9 @@ void MetroCheckA()
 {
   
  // *** MAIN CODE HERE :) *** 
- FadeInOut(255, 0, 0, waitTime); // Red
+  
+ // If train is arriving 
+ FadeInOut(metroRed, waitTime); // Red
   
 }
 
@@ -444,7 +454,9 @@ void MetroCheckB()
 {
   
  // *** MAIN CODE HERE :) *** 
- FadeInOut(0, 255, 0, waitTime); // Green
+  
+ // If train is arriving 
+ FadeInOut(metroGreen, waitTime); // Green
  
 }
               
@@ -452,7 +464,9 @@ void MetroCheckC()
 {
   
  // *** MAIN CODE HERE :) *** 
- FadeInOut(0, 0, 255, waitTime); // Blue
+  
+ // If train is arriving 
+ FadeInOut(metroBlue, waitTime); // Blue
   
 }              
               
@@ -460,6 +474,9 @@ void MetroCheckD()
 {
   
  // *** MAIN CODE HERE :) *** 
+  
+ // If train is arriving 
+ FadeInOut(metroSilver, waitTime); // Silver
   
 }
               
