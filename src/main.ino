@@ -79,7 +79,7 @@ const char* ap_default_psk  = "esp8266";   // Default PSK.
 
 // ** WMATA Information **
 // Usage: https://api.wmata.com/StationPrediction.svc/json/GetPrediction/{StationCodes}
-
+// API Calling Useage: https://api.wmata.com/StationPrediction.svc/json/GetPrediction/<STATION>?api_key=<API-KEY>
 const char   WMATAServer[]   = "https://api.wmata.com/StationPrediction.svc/json/GetPrediction/"; // name address for WMATA (using DNS)
 const String myKey           = "API_KEY";           // See: https://developer.wmata.com/ (change here with your Primary/Secondary API KEY)
 const String stationCodeA    = "STATION_CODE";      // Metro station code 1
