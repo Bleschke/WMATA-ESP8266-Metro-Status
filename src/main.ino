@@ -392,6 +392,7 @@ void DetermineStation()
     else
     {
       Serial.println("ERROR: Value is < 0 or > 4.");
+      counter = 1;
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("ERROR: Button H");
@@ -434,6 +435,7 @@ void DetermineStation()
     else
     {
       Serial.println("ERROR: Value is < 0 or > 4.");
+      counter = 1;
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("ERROR: Button L");
