@@ -350,7 +350,7 @@ void setup()
               
 void DetermineStation()
 {
-  int counter = 1;
+  int counter;
   //Handle input
   digitalRead(changeButton);
   if(changeButton = HIGH)
