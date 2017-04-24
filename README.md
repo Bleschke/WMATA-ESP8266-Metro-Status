@@ -9,7 +9,7 @@ Brian Leschke 2017
  An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 16x4 LCD screen (station updates).
 
 Project Breakdown:
-* Neopixel Ring
+* [Neopixel Ring](http://adafru.it/1586)
     * Displays Metro Line
         * RD - RED
         * OR - ORANGE
@@ -18,7 +18,7 @@ Project Breakdown:
         * YL - YELLOW
         * SV - SILVER
     * Fades in-out upon arrival
-* 7-Segment LED
+* [7-Segment LED](http://adafru.it/878)
     * Displays arrival time (minutes)
 * 16x4 LCD
     * Displays station updates
