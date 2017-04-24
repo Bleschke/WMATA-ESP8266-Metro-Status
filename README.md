@@ -9,7 +9,7 @@ Brian Leschke 2017
  An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 16x4 LCD screen (station updates).
 
 Project Breakdown:
-* [Neopixel Ring](http://adafru.it/1586)
+* Neopixel Ring
     * Displays Metro Line
         * RD - RED
         * OR - ORANGE
@@ -18,7 +18,7 @@ Project Breakdown:
         * YL - YELLOW
         * SV - SILVER
     * Fades in-out upon arrival
-* [7-Segment LED](http://adafru.it/878)
+* 7-Segment LED
     * Displays arrival time (minutes)
 * 16x4 LCD
     * Displays station updates
@@ -33,7 +33,7 @@ You will need:
 
 1. Adafruit Huzzah ESP8266 (http://adafru.it/2471)
 2. Neopixel Ring (http://adafru.it/1586)
-3. 7-Segment Alphanumeric LED (http://adafru.it/1911)
+3. 7-Segment Alphanumeric LED (http://adafru.it/878)
 4. Serial 16x4 LCD (ebay)
 5. PlatformIO / Arduino programming software
 6. Operating system that supports PlatformIO
