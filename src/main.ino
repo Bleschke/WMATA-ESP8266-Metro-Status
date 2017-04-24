@@ -35,9 +35,6 @@
 #include <LCD.h>
 #include <LiquidCrystal.h>
 #include <LiquidCrystal_I2C.h>
-#include <LiquidCrystal_SR.h>
-#include <LiquidCrystal_SR2W.h>
-#include <LiquidCrystal_SR3W.h>
 #include <Adafruit_GFX.h>
 #include <gfxfont.h>
 #include "Adafruit_LEDBackpack.h"
