@@ -20,7 +20,7 @@ Project Breakdown:
     * Fades in-out upon arrival
 * 7-Segment LED
     * Displays arrival time (minutes)
-* 16x4 LCD
+* 20x4 LCD
     * Displays station updates
         * LN   - Line
         * CAR  - Car number
@@ -34,7 +34,7 @@ You will need:
 1. Adafruit Huzzah ESP8266 (http://adafru.it/2471)
 2. Neopixel Ring (http://adafru.it/1586)
 3. 7-Segment Alphanumeric LED (http://adafru.it/878)
-4. Serial 16x4 LCD (ebay)
+4. Serial 20x4 LCD (ebay)
 5. PlatformIO / Arduino programming software
 6. Operating system that supports PlatformIO
 7. FTDI cable (https://www.sparkfun.com/products/9717)
