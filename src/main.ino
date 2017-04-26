@@ -447,8 +447,19 @@ void MetroCheckA()
   
   // *** MAIN CODE HERE :) *** 
   
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("LN  CAR  DEST  MIN");
+  
   // If train is arriving 
   FadeInOut(209 ,18, 66, waitTime); // Fade in and out Red
+  matrix.print("ARR");  // 7 Segment LED
+  matrix.writeDisplay();
+  
+  // If train is boarding
+  FadeInOut(209 ,18, 66, waitTime); // Fade in and out Red
+  matrix.print("BRD");  // 7 Segment LED
+  matrix.writeDisplay();
   
 }
 
@@ -458,9 +469,20 @@ void MetroCheckB()
   
   // *** MAIN CODE HERE :) *** 
   
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("LN  CAR  DEST  MIN");
+  
   // If train is arriving 
   FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
+  matrix.print("ARR");  // 7 Segment LED
+  matrix.writeDisplay();
  
+  // If train is boarding
+  FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
+  matrix.print("BRD");  // 7 Segment LED
+  matrix.writeDisplay();
+  
 }
               
 void MetroCheckC()
@@ -469,8 +491,19 @@ void MetroCheckC()
   
   // *** MAIN CODE HERE :) *** 
   
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("LN  CAR  DEST  MIN");
+  
   // If train is arriving 
   FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
+  matrix.print("ARR");  // 7 Segment LED
+  matrix.writeDisplay();
+  
+  // If train is boarding
+  FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
+  matrix.print("BRD");  // 7 Segment LED
+  matrix.writeDisplay();
   
 }              
               
@@ -480,9 +513,20 @@ void MetroCheckD()
   
   // *** MAIN CODE HERE :) *** 
   
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("LN  CAR  DEST  MIN");
+  
   // If train is arriving 
   FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
+  matrix.print("ARR");  // 7 Segment LED
+  matrix.writeDisplay();
   
+  // If train is boarding
+  FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
+  matrix.print("BRD");  // 7 Segment LED
+  matrix.writeDisplay(); 
+
 }
               
 void GetTime()
@@ -613,7 +657,7 @@ void loop()
     previousMetroMillis = currentMetroMillis; //remember the time(millis)
   }
   else {
-    Serial.println("Bypassing Metro Check. Less than 2 minutes since last check.");
+    Serial.println("Bypassing Metro Check. Less than 1 minute since last check.");
     Serial.println("Previous Millis: ");
     Serial.println(previousMetroMillis);
     Serial.println("Current Millis: ");
