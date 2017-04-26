@@ -92,7 +92,7 @@ const String stationC        = "STATION_NAME";      // Metro station name. ex. S
 const String stationD        = "STATION_NAME";      // Metro station name. ex. Shady Grove
   
   
-long metroCheckInterval              = 120000;      // DO NOT SET LOWER THAN 2 min default. Time (milliseconds) until next metro train check.
+long metroCheckInterval              = 60000;       // DO NOT Exceed 50000 API calls a day. Time (milliseconds) until next metro train check.
 unsigned long previousMetroMillis    = 0;           // Do not change.
 
 int changeButton             = 13;
