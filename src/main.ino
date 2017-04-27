@@ -88,6 +88,11 @@ const String stationLocA     = "STATION_LOC";       // Metro station name.  Usua
 const String stationLocB     = "STATION_LOC";       // Metro station name.  Usually your station stop
 const String stationLocC     = "STATION_LOC";       // Metro station name.  Usually your station stop
 const String stationLocD     = "STATION_LOC";       // Metro station name.  Usually your station stop 
+
+const String stationCodeA    = "STATION_CODE";      // Metro station code.
+const String stationCodeB    = "STATION_CODE";      // Metro station code.
+const String stationCodeC    = "STATION_CODE";      // Metro station code.
+const String stationCodeD    = "STATION_CODE";      // Metro station code.
   
 long metroCheckInterval              = 60000;       // DO NOT Exceed 50000 API calls a day. Time (milliseconds) until next metro train check.
 unsigned long previousMetroMillis    = 0;           // Do not change.
@@ -654,6 +659,39 @@ uint32_t Wheel(byte WheelPos) {
    return pixels.Color(0, WheelPos * 3, 255 - WheelPos * 3);
   }
 }
+
+// Send the HTTP GET request to the server
+bool sendRequest(const char* host, const char* resource) {
+  Serial.print("GET ");
+  Serial.println(resource);
+
+  client.print("GET ");
+  client.print(resource);
+  client.println(" HTTP/1.0");
+  client.print("Host: ");
+  client.println(host);
+  client.println("Connection: close");
+  client.println();
+
+  return true;
+}
+
+// Skip HTTP headers so that we are at the beginning of the response's body
+bool skipResponseHeaders() {
+  // HTTP headers end with an empty line
+  char endOfHeaders[] = "\r\n\r\n";
+
+  client.setTimeout(HTTP_TIMEOUT);
+  bool ok = client.find(endOfHeaders);
+
+  if (!ok) {
+    Serial.println("No response or invalid response!");
+  }
+
+  return ok;
+}
+
+
 
 /*
 Parse the JSON from the input string and extract the interesting values
