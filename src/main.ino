@@ -129,7 +129,7 @@ bool loadConfig(String *ssid, String *pass)
   
   content.trim();
 
-  // Check if ther is a second line available.
+  // Check if there is a second line available.
   int8_t pos = content.indexOf("\r\n");
   uint8_t le = 2;
   // check for linux and mac line ending.
@@ -199,11 +199,13 @@ void setup()
   lcd.begin(20, 4);
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("WMATA Status");
+  lcd.print("WMATA Metro Status");
   lcd.setCursor(0,1);
   lcd.print("Version 1.0");
   lcd.setCursor(0,2);
-  lcd.print("Brian Leschke");  
+  lcd.print("Brian Leschke"); 
+  lcd.setCursor(0,3);
+  lcd.print("April 26, 2017");
   delay(3000);
   
   String station_ssid = ""; // Do Not Change
@@ -454,16 +456,16 @@ void MetroCheckA()
   
   // If train is arriving 
   FadeInOut(209 ,18, 66, waitTime); // Fade in and out Red
-  matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(1, B11101110);  // 7 Segment LED "A"
   matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(4, B00101000);  // 7 Segment LED "R"
   matrix.writeDisplay();
   
   // If train is boarding
   FadeInOut(209 ,18, 66, waitTime); // Fade in and out Red
-  matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"  
+  matrix.writeDigitRaw(1, B00111110);  // 7 Segment LED "B"
+  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(4, B01111010);  // 7 Segment LED "D"  
   matrix.writeDisplay();
   
 }
@@ -480,16 +482,16 @@ void MetroCheckB()
   
   // If train is arriving 
   FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
-  matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(1, B11101110);  // 7 Segment LED "A"
   matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(4, B00101000);  // 7 Segment LED "R"
   matrix.writeDisplay();
  
   // If train is boarding
   FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
-  matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"  
+  matrix.writeDigitRaw(1, B00111110);  // 7 Segment LED "B"
+  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(4, B01111010);  // 7 Segment LED "D"  
   matrix.writeDisplay();
   
 }
@@ -506,16 +508,16 @@ void MetroCheckC()
   
   // If train is arriving 
   FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
-  matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(1, B11101110);  // 7 Segment LED "A"
   matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(4, B00101000);  // 7 Segment LED "R"
   matrix.writeDisplay();
   
   // If train is boarding
   FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
-  matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"  
+  matrix.writeDigitRaw(1, B00111110);  // 7 Segment LED "B"
+  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(4, B01111010);  // 7 Segment LED "D"  
   matrix.writeDisplay();
   
 }              
@@ -532,16 +534,16 @@ void MetroCheckD()
   
   // If train is arriving 
   FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
-  matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(1, B11101110);  // 7 Segment LED "A"
   matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(4, B00101000);  // 7 Segment LED "R"
   matrix.writeDisplay();
   
   // If train is boarding
   FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
-  matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"   
+  matrix.writeDigitRaw(1, B00111110);  // 7 Segment LED "B"
+  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(4, B01111010);  // 7 Segment LED "D"   
   matrix.writeDisplay(); 
 
 }
