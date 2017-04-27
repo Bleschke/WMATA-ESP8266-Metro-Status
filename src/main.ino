@@ -83,16 +83,10 @@ const char* ap_default_psk  = "esp8266";   // Default PSK.
 
 const char   WMATAServer[]   = "https://api.wmata.com/StationPrediction.svc/json/GetPrediction/"; // name address for WMATA (using DNS)
 const String myKey           = "API_KEY";           // See: https://developer.wmata.com/ (change here with your Primary/Secondary API KEY)
-const String stationLocA    = "STATION_LOC";      // Metro station code "Your station stop"
-const String stationLocB    = "STATION_LOC";      // Metro station code "Your station stop"
-const String stationLocC    = "STATION_LOC";      // Metro station code "Your station stop"
-const String stationLocD    = "STATION_LOC";      // Metro station code "Your station stop"
-
-const String stationDestA        = "STATION_DEST";      // Metro station name. usually end of line
-const String stationDestB        = "STATION_DEST";      // Metro station name. usually end of line
-const String stationDestC        = "STATION_DEST";      // Metro station name. usually end of line
-const String stationDestD        = "STATION_DEST";      // Metro station name. usually end of line
-  
+const String stationLocA     = "STATION_LOC";       // Metro station name.  Usually your station stop
+const String stationLocB     = "STATION_LOC";       // Metro station name.  Usually your station stop
+const String stationLocC     = "STATION_LOC";       // Metro station name.  Usually your station stop
+const String stationLocD     = "STATION_LOC";       // Metro station name.  Usually your station stop 
   
 long metroCheckInterval              = 60000;       // DO NOT Exceed 50000 API calls a day. Time (milliseconds) until next metro train check.
 unsigned long previousMetroMillis    = 0;           // Do not change.
