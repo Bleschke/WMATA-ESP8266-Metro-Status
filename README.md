@@ -55,7 +55,7 @@ The following libraries are required for this project:
   * [Arduino Framework (core library)](https://github.com/esp8266/Arduino)
   * ArduinoOTA
   * ArduinoJson
-  * LiquidCrystal
+  * LiquidCrystal v1.2.1
   * Adafruit_Neopixel
   * ESP8266WiFi
   * NTPClient
