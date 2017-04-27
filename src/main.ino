@@ -8,6 +8,7 @@
  *
  * -- Credit and Recognition: --
  * Thanks to WMATA for providing the API!
+ * Thanks to @bblanchon for the detailed JsonHttpClient example.
  *
  * -- Changelog: -- 
  * 
