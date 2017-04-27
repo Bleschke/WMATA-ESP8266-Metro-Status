@@ -83,15 +83,15 @@ const char* ap_default_psk  = "esp8266";   // Default PSK.
 
 const char   WMATAServer[]   = "https://api.wmata.com/StationPrediction.svc/json/GetPrediction/"; // name address for WMATA (using DNS)
 const String myKey           = "API_KEY";           // See: https://developer.wmata.com/ (change here with your Primary/Secondary API KEY)
-const String stationCodeA    = "STATION_CODE";      // Metro station code 1
-const String stationCodeB    = "STATION_CODE";      // Metro station code 2
-const String stationCodeC    = "STATION_CODE";      // Metro station code 3
-const String stationCodeD    = "STATION_CODE";      // Metro station code 4
+const String stationLocA    = "STATION_LOC";      // Metro station code "Your station stop"
+const String stationLocB    = "STATION_LOC";      // Metro station code "Your station stop"
+const String stationLocC    = "STATION_LOC";      // Metro station code "Your station stop"
+const String stationLocD    = "STATION_LOC";      // Metro station code "Your station stop"
 
-const String stationA        = "STATION_NAME";      // Metro station name. ex. Shady Grove
-const String stationB        = "STATION_NAME";      // Metro station name. ex. Shady Grove
-const String stationC        = "STATION_NAME";      // Metro station name. ex. Shady Grove
-const String stationD        = "STATION_NAME";      // Metro station name. ex. Shady Grove
+const String stationDestA        = "STATION_DEST";      // Metro station name. usually end of line
+const String stationDestB        = "STATION_DEST";      // Metro station name. usually end of line
+const String stationDestC        = "STATION_DEST";      // Metro station name. usually end of line
+const String stationDestD        = "STATION_DEST";      // Metro station name. usually end of line
   
   
 long metroCheckInterval              = 60000;       // DO NOT Exceed 50000 API calls a day. Time (milliseconds) until next metro train check.
@@ -413,7 +413,7 @@ void DetermineStation()
     {
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print(stationA);
+      lcd.print(stationLocA);
       delay(2000);  
       MetroCheckA();
     }
@@ -421,7 +421,7 @@ void DetermineStation()
     {
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print(stationB);
+      lcd.print(stationLocB);
       delay(2000);  
       MetroCheckB();
     }
@@ -429,7 +429,7 @@ void DetermineStation()
     {
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print(stationC);
+      lcd.print(stationLocC);
       delay(2000);  
       MetroCheckC();
     }
@@ -437,7 +437,7 @@ void DetermineStation()
     {
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print(stationD);
+      lcd.print(stationLocD);
       delay(2000);  
       MetroCheckD();
     }
