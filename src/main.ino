@@ -17,7 +17,7 @@
  * 4/11/2017 - Fixed errors and refined code
  * 4/13/2017 - Added metro colors
  * 4/23/2017 - Update LCD Library include
- * 4/26/2017 - Modified 7 segment code for BRD and ARR
+ * 4/26/2017 - Modified 7 segment code for BRD and ARR and fixed LCD library
  * 4/27/2017 - A.M. Added some JSON parsing code (not everything yet)
  *
  *
