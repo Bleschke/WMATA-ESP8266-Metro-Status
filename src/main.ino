@@ -18,6 +18,7 @@
  * 4/13/2017 - Added metro colors
  * 4/23/2017 - Update LCD Library include
  * 4/26/2017 - Modified 7 segment code for BRD and ARR
+ * 4/27/2017 - A.M. Added some JSON parsing code (not everything yet)
  *
  *
 */
@@ -97,6 +98,13 @@ long metroCheckInterval              = 60000;       // DO NOT Exceed 50000 API c
 unsigned long previousMetroMillis    = 0;           // Do not change.
 
 int changeButton             = 13;
+
+// ** JSON Parsing Information **
+// Data that we want to extract from WMATA
+struct UserData {
+  char Trains[32];
+};
+
 
 // ** NTP SERVER INFORMATION **
 // const char* timeHost = "time-c.nist.gov";
@@ -444,7 +452,7 @@ void DetermineStation()
   }
 }
 
-void MetroCheckA()
+void MetroCheckA(const struct UserData* userData)
 {
   colorWipe(pixels.Color(209 ,18, 66), 0); // set all neopixels to Red
   
@@ -470,7 +478,7 @@ void MetroCheckA()
   
 }
 
-void MetroCheckB()
+void MetroCheckB(const struct UserData* userData)
 {
   colorWipe(pixels.Color(0, 183, 96), 0); // Set all neopixels to Green
   
@@ -496,13 +504,13 @@ void MetroCheckB()
   
 }
               
-void MetroCheckC()
+void MetroCheckC(const struct UserData* userData)
 {
   colorWipe(pixels.Color(0, 150, 214), 0); // Set all neopixels to Blue
   
   // *** MAIN CODE HERE :) *** 
   
-  lcd.clear();
+  lcd.clear(const struct UserData* userData);
   lcd.setCursor(0,0);
   lcd.print("LN  CAR  DEST  MIN");
   
@@ -522,7 +530,7 @@ void MetroCheckC()
   
 }              
               
-void MetroCheckD()
+void MetroCheckD(const struct UserData* userData)
 {
   colorWipe(pixels.Color(167, 169, 172), 0); // Set all neopixels to Silver
   
@@ -652,6 +660,89 @@ uint32_t Wheel(byte WheelPos) {
   }
 }
 
+/*
+Parse the JSON from the input string and extract the interesting values
+Here is the JSON we need to parse
+{
+  "Trains": [
+    {
+      "Car": "6",
+      "Destination": "Shady Gr",
+      "DestinationCode": "A15",
+      "DestinationName": "Shady Grove",
+      "Group": "2",
+      "Line": "RD",
+      "LocationCode": "B03",
+      "LocationName": "Union Station",
+      "Min": "BRD"
+    },
+    {
+      "Car": "8",
+      "Destination": "NoMa",
+      "DestinationCode": "B35",
+      "DestinationName": "NoMa-Gallaudet",
+      "Group": "1",
+      "Line": "RD",
+      "LocationCode": "B03",
+      "LocationName": "Union Station",
+      "Min": "6"
+    },
+    {
+      "Car": "-",
+      "Destination": "Train",
+      "DestinationCode": null,
+      "DestinationName": "Train",
+      "Group": "1",
+      "Line": "--",
+      "LocationCode": "B03",
+      "LocationName": "Union Station",
+      "Min": "12"
+    },
+    {
+      "Car": "6",
+      "Destination": "Frgut N.",
+      "DestinationCode": "A02",
+      "DestinationName": "Farragut North",
+      "Group": "2",
+      "Line": "RD",
+      "LocationCode": "B03",
+      "LocationName": "Union Station",
+      "Min": ""
+    },
+   ]
+}
+*/
+bool readReponseContent(struct UserData* userData) {
+  // Compute optimal size of the JSON buffer according to what we need to parse.
+  // This is only required if you use StaticJsonBuffer.
+  const size_t BUFFER_SIZE =
+      JSON_OBJECT_SIZE(1)    // the root object has 1 element
+      + JSON_OBJECT_SIZE(9)  // the "Trains" object has 9 elements
+      + MAX_CONTENT_SIZE;    // additional space for strings
+
+  // Allocate a temporary memory pool
+  DynamicJsonBuffer jsonBuffer(BUFFER_SIZE);
+
+  JsonObject& root = jsonBuffer.parseObject(client);
+
+  if (!root.success()) {
+    Serial.println("JSON parsing failed!");
+    lcd.setCursor(0,3);
+    lcd.print("JSON parsing failed");
+    
+    return false;
+  }
+
+  // Here we copy the strings we're interested in
+  strcpy(userData->Trains, root["Trains"]["Car"]);              // number of cars per train
+  strcpy(userData->Trains, root["Trains"]["Destination"]);      // usually the end of the line (abbreviated)
+  strcpy(userData->Trains, root["Trains"]["DestinationName"]);  // usually the end of the line (non-abbreviated)
+  strcpy(userData->Trains, root["Trains"]["Line"]);             // line color
+  strcpy(userData->Trains, root["Trains"]["LocationName"]);     // usually your station
+  strcpy(userData->Trains, root["Trains"]["Min"]);              // minutes until train arrives at 'LocationName'
+
+  return true;
+}
 
 // ---------- ESP 8266 FUNCTIONS - SOME CAN BE REMOVED ----------
 
