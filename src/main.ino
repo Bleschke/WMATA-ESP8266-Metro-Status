@@ -1,6 +1,6 @@
 /* 
  * Brian Leschke
- * April 23, 2017
+ * April 26, 2017
  * Adafruit Huzzah WMATA ESP8266 Metro Status
  * An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 16x4 LCD screen (station updates).
  * Version 0.*
@@ -17,7 +17,7 @@
  * 4/11/2017 - Fixed errors and refined code
  * 4/13/2017 - Added metro colors
  * 4/23/2017 - Update LCD Library include
- * 4/26/2017 - Added some code
+ * 4/26/2017 - Modified 7 segment code for BRD and ARR
  *
  *
 */
@@ -33,8 +33,8 @@
 #include <ArduinoJson.h>
 #include <SPI.h>
 
-#include <I2CIO.h>
-#include <LCD.h>
+//#include <I2CIO.h>
+//#include <LCD.h>
 #include <LiquidCrystal.h>
 #include <LiquidCrystal_I2C.h>
 #include <Adafruit_GFX.h>
@@ -454,12 +454,16 @@ void MetroCheckA()
   
   // If train is arriving 
   FadeInOut(209 ,18, 66, waitTime); // Fade in and out Red
-  matrix.print("ARR");  // 7 Segment LED
+  matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
   matrix.writeDisplay();
   
   // If train is boarding
   FadeInOut(209 ,18, 66, waitTime); // Fade in and out Red
-  matrix.print("BRD");  // 7 Segment LED
+  matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"  
   matrix.writeDisplay();
   
 }
@@ -476,12 +480,16 @@ void MetroCheckB()
   
   // If train is arriving 
   FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
-  matrix.print("ARR");  // 7 Segment LED
+  matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
   matrix.writeDisplay();
  
   // If train is boarding
   FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
-  matrix.print("BRD");  // 7 Segment LED
+  matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"  
   matrix.writeDisplay();
   
 }
@@ -498,12 +506,16 @@ void MetroCheckC()
   
   // If train is arriving 
   FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
-  matrix.print("ARR");  // 7 Segment LED
+  matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
   matrix.writeDisplay();
   
   // If train is boarding
   FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
-  matrix.print("BRD");  // 7 Segment LED
+  matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"  
   matrix.writeDisplay();
   
 }              
@@ -520,12 +532,16 @@ void MetroCheckD()
   
   // If train is arriving 
   FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
-  matrix.print("ARR");  // 7 Segment LED
+  matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
   matrix.writeDisplay();
   
   // If train is boarding
   FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
-  matrix.print("BRD");  // 7 Segment LED
+  matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"   
   matrix.writeDisplay(); 
 
 }
