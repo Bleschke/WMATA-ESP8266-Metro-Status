@@ -857,9 +857,6 @@ void parseJSON(char json[300])
  if (Line == "RD")
  {
   colorWipe(pixels.Color(209 ,18, 66), 0); // set all neopixels to Red
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print(stationA);
   lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
@@ -895,9 +892,6 @@ void parseJSON(char json[300])
  else if (Line == "OR")
  {
   colorWipe(pixels.Color(248, 151, 29), 0); // set all neopixels to Orange
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print(stationA);
   lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
@@ -933,9 +927,6 @@ void parseJSON(char json[300])
  else if (Line == "YL")
  {
   colorWipe(pixels.Color(255, 221, 0), 0); // set all neopixels to Yellow
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print(stationA);
   lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
@@ -971,9 +962,6 @@ void parseJSON(char json[300])
  else if (Line == "GR")
  {
   colorWipe(pixels.Color(0, 183, 96), 0); // set all neopixels to Green
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print(stationA);
   lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
@@ -1009,9 +997,6 @@ void parseJSON(char json[300])
  else if (Line == "BL")
  {
   colorWipe(pixels.Color(0, 150, 214), 0); // set all neopixels to Blue
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print(stationA);
   lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
@@ -1047,9 +1032,6 @@ void parseJSON(char json[300])
  else if (Line == "SV")
  {
   colorWipe(pixels.Color(167, 169, 172), 0); // set all neopixels to Silver
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print(stationA);
   lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
@@ -1082,7 +1064,44 @@ void parseJSON(char json[300])
     matrix.writeDisplay();
   }
  }
-
+ else if (Line == "--")
+ {
+  colorWipe(pixels.Color(212, 0, 212), 0); // set all neopixels to Purple
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Out of Service");
+  lcd.setCursor(0,1);
+  lcd.print("LN  CAR  DEST  MIN");
+  lcd.setCursor(0,2);
+  lcd.print(Line);
+  lcd.print("  ");
+  lcd.print(Car);
+  lcd.print("  ");
+  lcd.print(Destination);
+  lcd.print("  ");
+  lcd.print(Min);
+    
+  matrix.writeDigitRaw(0, B01011100);  // 7 Segment LED "O"
+  matrix.writeDigitRaw(1, B01011100);  // 7 Segment LED "O"
+  matrix.writeDigitRaw(3, B01101101);  // 7 Segment LED "S"
+  matrix.writeDisplay();
+ }
+ else
+ {
+	lcd.clear();
+	lcd.setCursor(0,0);
+	lcd.print("Line Unknown");
+	lcd.setCursor(0,1);
+	lcd.print("LN  CAR  DEST  MIN");
+	lcd.setCursor(0,2);
+	lcd.print(Line);
+	lcd.print("  ");
+	lcd.print(Car);
+	lcd.print("  ");
+	lcd.print(Destination);
+	lcd.print("  ");
+	lcd.print(Min);
+ }
 }
 
 // ---------- ESP 8266 FUNCTIONS - SOME CAN BE REMOVED ----------
