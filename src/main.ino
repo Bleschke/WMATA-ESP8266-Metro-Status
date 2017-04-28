@@ -1,14 +1,13 @@
 /* 
  * Brian Leschke
- * April 26, 2017
+ * April 27, 2017
  * Adafruit Huzzah WMATA ESP8266 Metro Status
- * An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 20x4 LCD screen (station updates).
- * Version 0.*
+ * An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 16x4 LCD screen (station updates).
+ * Version 1.0
  * 
  *
  * -- Credit and Recognition: --
  * Thanks to WMATA for providing the API!
- * Thanks to @bblanchon for the detailed JsonHttpClient example.
  *
  * -- Changelog: -- 
  * 
@@ -18,9 +17,10 @@
  * 4/11/2017 - Fixed errors and refined code
  * 4/13/2017 - Added metro colors
  * 4/23/2017 - Update LCD Library include
- * 4/26/2017 - Modified 7 segment code for BRD and ARR and fixed LCD library
- * 4/27/2017 - A.M. Added some JSON parsing code (not everything yet)
- *
+ * 4/26/2017 - Added some code
+ * 4/27/2017 - Added JSON parsing, modified code and libraries, ....
+ * 
+ * 
  *
 */
 
@@ -35,9 +35,9 @@
 #include <ArduinoJson.h>
 #include <SPI.h>
 
-//#include <I2CIO.h>
+//include <I2CIO.h>
 //#include <LCD.h>
-#include <LiquidCrystal.h>
+//#include <LiquidCrystal.h>
 #include <LiquidCrystal_I2C.h>
 #include <Adafruit_GFX.h>
 #include <gfxfont.h>
@@ -71,7 +71,8 @@ uint32_t metroSilver = pixels.Color(167, 169, 172);   // convert color value to 
 Adafruit_7segment matrix = Adafruit_7segment();
 
 // LCD setup
-LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
+//LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
+LiquidCrystal_I2C lcd(0x3F,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 
 // ** Default WiFi connection Information **
@@ -82,28 +83,44 @@ const char* ap_default_psk  = "esp8266";   // Default PSK.
 // Usage: https://api.wmata.com/StationPrediction.svc/json/GetPrediction/{StationCodes}
 // API Calling Usage: https://api.wmata.com/StationPrediction.svc/json/GetPrediction/<STATION>?api_key=<API-KEY>
 
-const char   WMATAServer[]   = "https://api.wmata.com/StationPrediction.svc/json/GetPrediction/"; // name address for WMATA (using DNS)
+#define      WMATAServer       "https://api.wmata.com" // name address for WMATA (using DNS)
 const String myKey           = "API_KEY";           // See: https://developer.wmata.com/ (change here with your Primary/Secondary API KEY)
-const String stationLocA     = "STATION_LOC";       // Metro station name.  Usually your station stop
-const String stationLocB     = "STATION_LOC";       // Metro station name.  Usually your station stop
-const String stationLocC     = "STATION_LOC";       // Metro station name.  Usually your station stop
-const String stationLocD     = "STATION_LOC";       // Metro station name.  Usually your station stop 
+const String stationCodeA    = "STATION_CODE";      // Metro station code 1
+const String stationCodeB    = "STATION_CODE";      // Metro station code 2
+const String stationCodeC    = "STATION_CODE";      // Metro station code 3
+const String stationCodeD    = "STATION_CODE";      // Metro station code 4
 
-const String stationCodeA    = "STATION_CODE";      // Metro station code.
-const String stationCodeB    = "STATION_CODE";      // Metro station code.
-const String stationCodeC    = "STATION_CODE";      // Metro station code.
-const String stationCodeD    = "STATION_CODE";      // Metro station code.
+const String stationA        = "STATION_NAME";      // Metro station name. ex. Shady Grove
+const String stationB        = "STATION_NAME";      // Metro station name. ex. Shady Grove
+const String stationC        = "STATION_NAME";      // Metro station name. ex. Shady Grove
+const String stationD        = "STATION_NAME";      // Metro station name. ex. Shady Grove 
   
 long metroCheckInterval              = 60000;       // DO NOT Exceed 50000 API calls a day. Time (milliseconds) until next metro train check.
 unsigned long previousMetroMillis    = 0;           // Do not change.
-
 int changeButton             = 13;
 
-// ** JSON Parsing Information **
-// Data that we want to extract from WMATA
-struct UserData {
-  char Trains[32];
+
+// ** JSON Parser Information
+const int buffer_size = 300;                         // length of json buffer
+const int buffer=300;
+
+int passNum = 1;
+
+char* metroConds[]={
+   "\"Car\":",
+   "\"Destination\":",
+   "\"DestinationCode\":",
+   "\"DestinationName\":",
+   "\"Group\":",
+   "\"Line\":",
+   "\"LocationCode\":",
+   "\"LocationName\":",
+   "\"Min\":",
 };
+
+int num_elements        = 9;  // number of conditions you are retrieving, count of elements in conds
+
+//unsigned long WMillis   = 0;                           // temporary millis() register
 
 
 // ** NTP SERVER INFORMATION **
@@ -137,7 +154,7 @@ bool loadConfig(String *ssid, String *pass)
   
   content.trim();
 
-  // Check if there is a second line available.
+  // Check if ther is a second line available.
   int8_t pos = content.indexOf("\r\n");
   uint8_t le = 2;
   // check for linux and mac line ending.
@@ -201,33 +218,34 @@ bool saveConfig(String *ssid, String *pass)
 
 void setup()
 {
+  delay(2000);
   matrix.begin(0x70);
-  matrix.print(0000);  // 7 Segment LED
+  matrix.print(1234);  // 7 Segment LED
   matrix.writeDisplay();
+  delay(1000);
+  lcd.init();  
+  lcd.init(); 
   lcd.begin(20, 4);
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("WMATA Metro Status");
+  lcd.print("WMATA Status");
   lcd.setCursor(0,1);
   lcd.print("Version 1.0");
   lcd.setCursor(0,2);
-  lcd.print("Brian Leschke"); 
-  lcd.setCursor(0,3);
-  lcd.print("April 26, 2017");
+  lcd.print("Brian Leschke");  
   delay(3000);
-  
   String station_ssid = ""; // Do Not Change
   String station_psk = "";  // Do Not Change
 
   Serial.begin(115200);
   pixels.begin(); // This initializes the NeoPixel library.
   pinMode(changeButton, INPUT);
+  pinMode(12, OUTPUT);
+  digitalWrite(12, HIGH); //high pin for changeButton
   
   pixels.setPixelColor(0, pixels.Color(0,0,0)); // OFF
   pixels.show(); // This sends the updated pixel color to the hardware.
   rainbowCycle(20);  // Loading screen
-  
-  delay(100);
 
   Serial.println("\r\n");
   Serial.print("Chip ID: 0x");
@@ -400,7 +418,7 @@ void DetermineStation()
     }
     else
     {
-      Serial.println("ERROR: Value is < 0 or > 4.");
+      Serial.println("ERROR: Value is <= 0 or > 4.");
       counter = 1;
       lcd.clear();
       lcd.setCursor(0,0);
@@ -413,7 +431,7 @@ void DetermineStation()
     {
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print(stationLocA);
+      lcd.print(stationA);
       delay(2000);  
       MetroCheckA();
     }
@@ -421,7 +439,7 @@ void DetermineStation()
     {
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print(stationLocB);
+      lcd.print(stationB);
       delay(2000);  
       MetroCheckB();
     }
@@ -429,7 +447,7 @@ void DetermineStation()
     {
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print(stationLocC);
+      lcd.print(stationC);
       delay(2000);  
       MetroCheckC();
     }
@@ -437,13 +455,13 @@ void DetermineStation()
     {
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print(stationLocD);
+      lcd.print(stationD);
       delay(2000);  
       MetroCheckD();
     }
     else
     {
-      Serial.println("ERROR: Value is < 0 or > 4.");
+      Serial.println("ERROR: Value is <= 0 or > 4.");
       counter = 1;
       lcd.clear();
       lcd.setCursor(0,0);
@@ -452,33 +470,69 @@ void DetermineStation()
   }
 }
 
-void MetroCheckA(const struct UserData* userData)
+void MetroCheckA()
 {
-  colorWipe(pixels.Color(209 ,18, 66), 0); // set all neopixels to Red
+  Serial.print("connecting to ");
+  Serial.println(WMATAServer);
   
-  // *** MAIN CODE HERE :) *** 
+  // Use WiFiClient class to create TCP connections
+  WiFiClient client;
   
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("LN  CAR  DEST  MIN");
+  const int httpPort = 443;
   
-  // If train is arriving 
-  FadeInOut(209 ,18, 66, waitTime); // Fade in and out Red
-  matrix.writeDigitRaw(1, B11101110);  // 7 Segment LED "A"
-  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(4, B00101000);  // 7 Segment LED "R"
-  matrix.writeDisplay();
+  if (!client.connect(WMATAServer, httpPort)) {
+    Serial.println("connection failed");
+    return;
+  }
   
-  // If train is boarding
-  FadeInOut(209 ,18, 66, waitTime); // Fade in and out Red
-  matrix.writeDigitRaw(1, B00111110);  // 7 Segment LED "B"
-  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(4, B01111010);  // 7 Segment LED "D"  
-  matrix.writeDisplay();
+  String cmd = "GET /StationPrediction.svc/json/GetPrediction/";  cmd += stationCodeA;      // build request_string cmd
+  cmd += "?api_key=";  cmd += myKey;  //
+  cmd += " HTTP/1.1\r\nHost: api.wmata.com\r\n\r\n";            
+  delay(500);
+  client.print(cmd);                                            
+  delay(500);
+  unsigned int i = 0;                                           // timeout counter
+  char json[buffer_size]="{";                                   // first character for json-string is begin-bracket 
+  int n = 1;                                                    // character counter for json  
   
+  for (int j=0;j<num_elements;j++){                             // do the loop for every element/condition
+    boolean quote = false; int nn = false;                      // if quote=fals means no quotes so comma means break
+    while (!client.find(metroConds[j])){}                            // find the part we are interested in.
+  
+    String Str1 = metroConds[j];                                     // Str1 gets the name of element/condition
+  
+    for (int l=0; l<(Str1.length());l++)                        // for as many character one by one
+        {json[n] = Str1[l];                                     // fill the json string with the name
+         n++;}                                                  // character count +1
+    while (i<5000) {                                            // timer/counter
+      if(client.available()) {                                  // if character found in receive-buffer
+        char c = client.read();                                 // read that character
+          // Serial.print(c);                                   // 
+// ************************ construction of json string converting comma's inside quotes to dots ********************        
+               if ((c=='"') && (quote==false))                  // there is a " and quote=false, so start of new element
+                  {quote = true;nn=n;}                          // make quote=true and notice place in string
+               if ((c==',')&&(quote==true)) {c='.';}            // if there is a comma inside quotes, comma becomes a dot.
+               if ((c=='"') && (quote=true)&&(nn!=n))           // if there is a " and quote=true and on different position
+                  {quote = false;}                              // quote=false meaning end of element between ""
+               if((c==',')&&(quote==false)) break;              // if comma delimiter outside "" then end of this element
+ // ****************************** end of construction ******************************************************
+          json[n]=c;                                            // fill json string with this character
+          n++;                                                  // character count + 1
+          i=0;                                                  // timer/counter + 1
+        }
+        i++;                                                    // add 1 to timer/counter
+      }                    // end while i<5000
+     if (j==num_elements-1)                                     // if last element
+        {json[n]='}';}                                          // add end bracket of json string
+     else                                                       // else
+        {json[n]=',';}                                          // add comma as element delimiter
+     n++;                                                       // next place in json string
+  }
+  //Serial.println(json);                                       // debugging json string 
+  parseJSON(json);                                              // extract the conditions
 }
 
-void MetroCheckB(const struct UserData* userData)
+void MetroCheckB()
 {
   colorWipe(pixels.Color(0, 183, 96), 0); // Set all neopixels to Green
   
@@ -490,47 +544,47 @@ void MetroCheckB(const struct UserData* userData)
   
   // If train is arriving 
   FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
-  matrix.writeDigitRaw(1, B11101110);  // 7 Segment LED "A"
+  matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
   matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(4, B00101000);  // 7 Segment LED "R"
   matrix.writeDisplay();
  
   // If train is boarding
   FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
-  matrix.writeDigitRaw(1, B00111110);  // 7 Segment LED "B"
-  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(4, B01111010);  // 7 Segment LED "D"  
+  matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"  
   matrix.writeDisplay();
   
 }
               
-void MetroCheckC(const struct UserData* userData)
+void MetroCheckC()
 {
   colorWipe(pixels.Color(0, 150, 214), 0); // Set all neopixels to Blue
   
   // *** MAIN CODE HERE :) *** 
   
-  lcd.clear(const struct UserData* userData);
+  lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("LN  CAR  DEST  MIN");
   
   // If train is arriving 
   FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
-  matrix.writeDigitRaw(1, B11101110);  // 7 Segment LED "A"
+  matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
   matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(4, B00101000);  // 7 Segment LED "R"
   matrix.writeDisplay();
   
   // If train is boarding
   FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
-  matrix.writeDigitRaw(1, B00111110);  // 7 Segment LED "B"
-  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(4, B01111010);  // 7 Segment LED "D"  
+  matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"  
   matrix.writeDisplay();
   
 }              
               
-void MetroCheckD(const struct UserData* userData)
+void MetroCheckD()
 {
   colorWipe(pixels.Color(167, 169, 172), 0); // Set all neopixels to Silver
   
@@ -542,16 +596,16 @@ void MetroCheckD(const struct UserData* userData)
   
   // If train is arriving 
   FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
-  matrix.writeDigitRaw(1, B11101110);  // 7 Segment LED "A"
+  matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
   matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(4, B00101000);  // 7 Segment LED "R"
   matrix.writeDisplay();
   
   // If train is boarding
   FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
-  matrix.writeDigitRaw(1, B00111110);  // 7 Segment LED "B"
-  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(4, B01111010);  // 7 Segment LED "D"   
+  matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+  matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"   
   matrix.writeDisplay(); 
 
 }
@@ -660,121 +714,261 @@ uint32_t Wheel(byte WheelPos) {
   }
 }
 
-// Send the HTTP GET request to the server
-bool sendRequest(const char* host, const char* resource) {
-  Serial.print("GET ");
-  Serial.println(resource);
 
-  client.print("GET ");
-  client.print(resource);
-  client.println(" HTTP/1.0");
-  client.print("Host: ");
-  client.println(host);
-  client.println("Connection: close");
-  client.println();
-
-  return true;
-}
-
-// Skip HTTP headers so that we are at the beginning of the response's body
-bool skipResponseHeaders() {
-  // HTTP headers end with an empty line
-  char endOfHeaders[] = "\r\n\r\n";
-
-  client.setTimeout(HTTP_TIMEOUT);
-  bool ok = client.find(endOfHeaders);
-
-  if (!ok) {
-    Serial.println("No response or invalid response!");
-  }
-
-  return ok;
-}
-
-
-
-/*
-Parse the JSON from the input string and extract the interesting values
-Here is the JSON we need to parse
+void parseJSON(char json[300])
 {
-  "Trains": [
-    {
-      "Car": "6",
-      "Destination": "Shady Gr",
-      "DestinationCode": "A15",
-      "DestinationName": "Shady Grove",
-      "Group": "2",
-      "Line": "RD",
-      "LocationCode": "B03",
-      "LocationName": "Union Station",
-      "Min": "BRD"
-    },
-    {
-      "Car": "8",
-      "Destination": "NoMa",
-      "DestinationCode": "B35",
-      "DestinationName": "NoMa-Gallaudet",
-      "Group": "1",
-      "Line": "RD",
-      "LocationCode": "B03",
-      "LocationName": "Union Station",
-      "Min": "6"
-    },
-    {
-      "Car": "-",
-      "Destination": "Train",
-      "DestinationCode": null,
-      "DestinationName": "Train",
-      "Group": "1",
-      "Line": "--",
-      "LocationCode": "B03",
-      "LocationName": "Union Station",
-      "Min": "12"
-    },
-    {
-      "Car": "6",
-      "Destination": "Frgut N.",
-      "DestinationCode": "A02",
-      "DestinationName": "Farragut North",
-      "Group": "2",
-      "Line": "RD",
-      "LocationCode": "B03",
-      "LocationName": "Union Station",
-      "Min": ""
-    },
-   ]
+  StaticJsonBuffer<buffer> jsonBuffer;
+ JsonObject& root = jsonBuffer.parseObject(json);
+ 
+ if (!root.success())
+{
+  lcd.setCursor(0,3);
+  lcd.print("?fparseObject() failed");
+  //return;
 }
-*/
-bool readReponseContent(struct UserData* userData) {
-  // Compute optimal size of the JSON buffer according to what we need to parse.
-  // This is only required if you use StaticJsonBuffer.
-  const size_t BUFFER_SIZE =
-      JSON_OBJECT_SIZE(1)    // the root object has 1 element
-      + JSON_OBJECT_SIZE(9)  // the "Trains" object has 9 elements
-      + MAX_CONTENT_SIZE;    // additional space for strings
 
-  // Allocate a temporary memory pool
-  DynamicJsonBuffer jsonBuffer(BUFFER_SIZE);
+ 
+ double Car                   = root["Car"];
+ const char* Destination      = root["Destination"];
+ const char* DestinationCode  = root["DestinationCode"];
+ const char* DestinationName  = root["DestinationName"];
+ double Group                 = root["Group"];
+ const char* Line             = root["Line"];
+ const char* LocationCode     = root["LocationCode"];
+ const char* LocationName     = root["LocationName"];
+ const char* CMin             = root["Min"];
+ int Min                      = root["Min"];
 
-  JsonObject& root = jsonBuffer.parseObject(client);
 
-  if (!root.success()) {
-    Serial.println("JSON parsing failed!");
-    lcd.setCursor(0,3);
-    lcd.print("JSON parsing failed");
+ if (Line == "RD")
+ {
+  colorWipe(pixels.Color(209 ,18, 66), 0); // set all neopixels to Red
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(stationA);
+  lcd.setCursor(0,1);
+  lcd.print("LN  CAR  DEST  MIN");
+  lcd.setCursor(0,2);
+  lcd.print(Line);
+  lcd.print("  ");
+  lcd.print(Car);
+  lcd.print("  ");
+  lcd.print(Destination);
+  lcd.print("  ");
+  lcd.print(Min);
     
-    return false;
+  if (CMin == "ARR")  // If train is arriving 
+  {  
+    FadeInOut(209 ,18, 66, waitTime); // Fade in and out Red
+    matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    matrix.writeDisplay();
   }
+  else if (CMin == "BRD")   // If train is boarding
+  {
+    FadeInOut(209 ,18, 66, waitTime); // Fade in and out Red
+    matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+  }
+  else
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+  }
+ } 
+ else if (Line == "OR")
+ {
+  colorWipe(pixels.Color(248, 151, 29), 0); // set all neopixels to Orange
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(stationA);
+  lcd.setCursor(0,1);
+  lcd.print("LN  CAR  DEST  MIN");
+  lcd.setCursor(0,2);
+  lcd.print(Line);
+  lcd.print("  ");
+  lcd.print(Car);
+  lcd.print("  ");
+  lcd.print(Destination);
+  lcd.print("  ");
+  lcd.print(Min);
+    
+  if (CMin == "ARR")  // If train is arriving 
+  {  
+    FadeInOut(248, 151, 29, waitTime); // Fade in and out Orange
+    matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    matrix.writeDisplay();
+  }
+  else if (CMin == "BRD")   // If train is boarding
+  {
+    FadeInOut(248, 151, 29, waitTime); // Fade in and out Orange
+    matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+  }
+  else
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+  }
+ }
+ else if (Line == "YL")
+ {
+  colorWipe(pixels.Color(255, 221, 0), 0); // set all neopixels to Yellow
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(stationA);
+  lcd.setCursor(0,1);
+  lcd.print("LN  CAR  DEST  MIN");
+  lcd.setCursor(0,2);
+  lcd.print(Line);
+  lcd.print("  ");
+  lcd.print(Car);
+  lcd.print("  ");
+  lcd.print(Destination);
+  lcd.print("  ");
+  lcd.print(Min);
+    
+  if (CMin == "ARR")  // If train is arriving 
+  {  
+    FadeInOut(255, 221, 0, waitTime); // Fade in and out Yellow
+    matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    matrix.writeDisplay();
+  }
+  else if (CMin == "BRD")   // If train is boarding
+  {
+    FadeInOut(255, 221, 0, waitTime); // Fade in and out Yellow
+    matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+  }
+  else
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+  }
+ }
+ else if (Line == "GR")
+ {
+  colorWipe(pixels.Color(0, 183, 96), 0); // set all neopixels to Green
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(stationA);
+  lcd.setCursor(0,1);
+  lcd.print("LN  CAR  DEST  MIN");
+  lcd.setCursor(0,2);
+  lcd.print(Line);
+  lcd.print("  ");
+  lcd.print(Car);
+  lcd.print("  ");
+  lcd.print(Destination);
+  lcd.print("  ");
+  lcd.print(Min);
+    
+  if (CMin == "ARR")  // If train is arriving 
+  {  
+    FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
+    matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    matrix.writeDisplay();
+  }
+  else if (CMin == "BRD")   // If train is boarding
+  {
+    FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
+    matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+  }
+  else
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+  }
+ }
+ else if (Line == "BL")
+ {
+  colorWipe(pixels.Color(0, 150, 214), 0); // set all neopixels to Blue
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(stationA);
+  lcd.setCursor(0,1);
+  lcd.print("LN  CAR  DEST  MIN");
+  lcd.setCursor(0,2);
+  lcd.print(Line);
+  lcd.print("  ");
+  lcd.print(Car);
+  lcd.print("  ");
+  lcd.print(Destination);
+  lcd.print("  ");
+  lcd.print(Min);
+    
+  if (CMin == "ARR")  // If train is arriving 
+  {  
+    FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
+    matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    matrix.writeDisplay();
+  }
+  else if (CMin == "BRD")   // If train is boarding
+  {
+    FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
+    matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+  }
+  else
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+  }
+ }
+ else if (Line == "SV")
+ {
+  colorWipe(pixels.Color(167, 169, 172), 0); // set all neopixels to Silver
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(stationA);
+  lcd.setCursor(0,1);
+  lcd.print("LN  CAR  DEST  MIN");
+  lcd.setCursor(0,2);
+  lcd.print(Line);
+  lcd.print("  ");
+  lcd.print(Car);
+  lcd.print("  ");
+  lcd.print(Destination);
+  lcd.print("  ");
+  lcd.print(Min);
+    
+  if (CMin == "ARR")  // If train is arriving 
+  {  
+    FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
+    matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    matrix.writeDisplay();
+  }
+  else if (CMin == "BRD")   // If train is boarding
+  {
+    FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
+    matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+  }
+  else
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+  }
+ }
 
-  // Here we copy the strings we're interested in
-  strcpy(userData->Trains, root["Trains"]["Car"]);              // number of cars per train
-  strcpy(userData->Trains, root["Trains"]["Destination"]);      // usually the end of the line (abbreviated)
-  strcpy(userData->Trains, root["Trains"]["DestinationName"]);  // usually the end of the line (non-abbreviated)
-  strcpy(userData->Trains, root["Trains"]["Line"]);             // line color
-  strcpy(userData->Trains, root["Trains"]["LocationName"]);     // usually your station
-  strcpy(userData->Trains, root["Trains"]["Min"]);              // minutes until train arrives at 'LocationName'
-
-  return true;
 }
 
 // ---------- ESP 8266 FUNCTIONS - SOME CAN BE REMOVED ----------
@@ -789,7 +983,7 @@ void loop()
   // ---------- USER CODE GOES HERE ----------
 
   // ** Receive Time (NTP)
-  GetTime();
+  //GetTime();
 
   // ** Metro Check **
   unsigned long currentMetroMillis = millis();
