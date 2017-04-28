@@ -19,7 +19,7 @@
  * 4/23/2017 - Update LCD Library include
  * 4/26/2017 - Added some code
  * 4/27/2017 - Added JSON parsing, modified code and libraries, ....
- * 
+ * 4/28/2017 - Changed neopixel brightness, parsing port (parsing), and added neopixel sparkle code (arrival)
  * 
  *
 */
@@ -476,7 +476,7 @@ void MetroCheckA()
   // Use WiFiClient class to create TCP connections
   WiFiClient client;
   
-  const int httpPort = 443;
+  const int httpPort = 80;
   
   if (!client.connect(WMATAServer, httpPort)) {
     Serial.println("connection failed");
@@ -538,7 +538,7 @@ void MetroCheckB()
   // Use WiFiClient class to create TCP connections
   WiFiClient client;
   
-  const int httpPort = 443;
+  const int httpPort = 80;
   
   if (!client.connect(WMATAServer, httpPort)) {
     Serial.println("connection failed");
@@ -600,7 +600,7 @@ void MetroCheckC()
   // Use WiFiClient class to create TCP connections
   WiFiClient client;
   
-  const int httpPort = 443;
+  const int httpPort = 80;
   
   if (!client.connect(WMATAServer, httpPort)) {
     Serial.println("connection failed");
@@ -662,7 +662,7 @@ void MetroCheckD()
   // Use WiFiClient class to create TCP connections
   WiFiClient client;
   
-  const int httpPort = 443;
+  const int httpPort = 80;
   
   if (!client.connect(WMATAServer, httpPort)) {
     Serial.println("connection failed");
@@ -820,6 +820,14 @@ uint32_t Wheel(byte WheelPos) {
   }
 }
 
+void Sparkle(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
+  int Pixel = random(NUMPIXELS);
+  pixels.setPixelColor(Pixel, pixels.Color(red, green, blue)); 
+  pixels.show();
+  delay(wait);
+  pixels.setPixelColor(Pixel,0,0,0);
+}
+
 
 void parseJSON(char json[300])
 {
@@ -865,7 +873,7 @@ void parseJSON(char json[300])
     
   if (CMin == "ARR")  // If train is arriving 
   {  
-    FadeInOut(209 ,18, 66, waitTime); // Fade in and out Red
+    FadeInOut(209 ,18, 66, waitTime);    // Fade in and out Red
     matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
     matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
     matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
@@ -873,7 +881,7 @@ void parseJSON(char json[300])
   }
   else if (CMin == "BRD")   // If train is boarding
   {
-    FadeInOut(209 ,18, 66, waitTime); // Fade in and out Red
+    Sparkle(209 ,18, 66, waitTime);      // Sparkle Red
     matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
     matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
     matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
@@ -903,7 +911,7 @@ void parseJSON(char json[300])
     
   if (CMin == "ARR")  // If train is arriving 
   {  
-    FadeInOut(248, 151, 29, waitTime); // Fade in and out Orange
+    FadeInOut(248, 151, 29, waitTime);   // Fade in and out Orange
     matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
     matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
     matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
@@ -911,7 +919,7 @@ void parseJSON(char json[300])
   }
   else if (CMin == "BRD")   // If train is boarding
   {
-    FadeInOut(248, 151, 29, waitTime); // Fade in and out Orange
+    Sparkle(248, 151, 29, waitTime);     // Sparkle Orange
     matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
     matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
     matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
@@ -941,7 +949,7 @@ void parseJSON(char json[300])
     
   if (CMin == "ARR")  // If train is arriving 
   {  
-    FadeInOut(255, 221, 0, waitTime); // Fade in and out Yellow
+    FadeInOut(255, 221, 0, waitTime);    // Fade in and out Yellow
     matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
     matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
     matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
@@ -949,7 +957,7 @@ void parseJSON(char json[300])
   }
   else if (CMin == "BRD")   // If train is boarding
   {
-    FadeInOut(255, 221, 0, waitTime); // Fade in and out Yellow
+    Sparkle(255, 221, 0, waitTime);      // Sparkle Yellow
     matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
     matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
     matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
@@ -979,7 +987,7 @@ void parseJSON(char json[300])
     
   if (CMin == "ARR")  // If train is arriving 
   {  
-    FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
+    FadeInOut(0, 183, 96, waitTime);     // Fade in and out Green
     matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
     matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
     matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
@@ -987,7 +995,7 @@ void parseJSON(char json[300])
   }
   else if (CMin == "BRD")   // If train is boarding
   {
-    FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
+    Sparkle(0, 183, 96, waitTime);       // Sparkle Green
     matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
     matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
     matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
@@ -1017,7 +1025,7 @@ void parseJSON(char json[300])
     
   if (CMin == "ARR")  // If train is arriving 
   {  
-    FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
+    FadeInOut(0, 150, 214, waitTime);    // Fade in and out Blue
     matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
     matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
     matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
@@ -1025,7 +1033,7 @@ void parseJSON(char json[300])
   }
   else if (CMin == "BRD")   // If train is boarding
   {
-    FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
+    Sparkle(0, 150, 214, waitTime);      // Sparkle Blue
     matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
     matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
     matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
@@ -1055,7 +1063,7 @@ void parseJSON(char json[300])
     
   if (CMin == "ARR")  // If train is arriving 
   {  
-    FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
+    FadeInOut(167, 169, 172, waitTime);  // Fade in and out Silver
     matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
     matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
     matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
@@ -1063,7 +1071,7 @@ void parseJSON(char json[300])
   }
   else if (CMin == "BRD")   // If train is boarding
   {
-    FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
+    Sparkle(167, 169, 172, waitTime);    // Sparkle Silver
     matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
     matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
     matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
