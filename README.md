@@ -6,7 +6,7 @@ Brian Leschke 2017
 
 ## **Overview**
 
- An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 16x4 LCD screen (station updates).
+ An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 20x4 LCD screen (station updates).
 
 Project Breakdown:
 * Neopixel Ring
@@ -18,6 +18,7 @@ Project Breakdown:
         * YL - YELLOW
         * SV - SILVER
     * Fades in-out upon arrival
+    * Sparkle flash upon boarding
 * 7-Segment LED
     * Displays arrival time (minutes)
 * 20x4 LCD
@@ -55,7 +56,7 @@ The following libraries are required for this project:
   * [Arduino Framework (core library)](https://github.com/esp8266/Arduino)
   * ArduinoOTA
   * ArduinoJson
-  * LiquidCrystal_I2C2004V1 (or any version for your lcd)
+  * LiquidCrystal_I2C2004V1 (or any supporting version for your lcd)
   * Adafruit_Neopixel
   * ESP8266WiFi
   * NTPClient
