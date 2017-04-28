@@ -83,7 +83,7 @@ const char* ap_default_psk  = "esp8266";   // Default PSK.
 // Usage: https://api.wmata.com/StationPrediction.svc/json/GetPrediction/{StationCodes}
 // API Calling Usage: https://api.wmata.com/StationPrediction.svc/json/GetPrediction/<STATION>?api_key=<API-KEY>
 
-#define      WMATAServer       "https://api.wmata.com" // name address for WMATA (using DNS)
+#define      WMATAServer       "api.wmata.com" // name address for WMATA (using DNS)
 const String myKey           = "API_KEY";           // See: https://developer.wmata.com/ (change here with your Primary/Secondary API KEY)
 const String stationCodeA    = "STATION_CODE";      // Metro station code 1
 const String stationCodeB    = "STATION_CODE";      // Metro station code 2
@@ -223,8 +223,6 @@ void setup()
   matrix.print(1234);  // 7 Segment LED
   matrix.writeDisplay();
   delay(1000);
-  lcd.init();  
-  lcd.init(); 
   lcd.begin(20, 4);
   lcd.clear();
   lcd.setCursor(0,0);
@@ -472,7 +470,7 @@ void DetermineStation()
 
 void MetroCheckA()
 {
-  Serial.print("connecting to ");
+  Serial.print("Metro A: connecting to ");
   Serial.println(WMATAServer);
   
   // Use WiFiClient class to create TCP connections
@@ -534,80 +532,188 @@ void MetroCheckA()
 
 void MetroCheckB()
 {
-  colorWipe(pixels.Color(0, 183, 96), 0); // Set all neopixels to Green
+  Serial.print("Metro B: connecting to ");
+  Serial.println(WMATAServer);
   
-  // *** MAIN CODE HERE :) *** 
+  // Use WiFiClient class to create TCP connections
+  WiFiClient client;
   
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("LN  CAR  DEST  MIN");
+  const int httpPort = 443;
   
-  // If train is arriving 
-  FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
-  matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-  matrix.writeDisplay();
- 
-  // If train is boarding
-  FadeInOut(0, 183, 96, waitTime); // Fade in and out Green
-  matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"  
-  matrix.writeDisplay();
+  if (!client.connect(WMATAServer, httpPort)) {
+    Serial.println("connection failed");
+    return;
+  }
   
+  String cmd = "GET /StationPrediction.svc/json/GetPrediction/";  cmd += stationCodeA;      // build request_string cmd
+  cmd += "?api_key=";  cmd += myKey;  //
+  cmd += " HTTP/1.1\r\nHost: api.wmata.com\r\n\r\n";            
+  delay(500);
+  client.print(cmd);                                            
+  delay(500);
+  unsigned int i = 0;                                           // timeout counter
+  char json[buffer_size]="{";                                   // first character for json-string is begin-bracket 
+  int n = 1;                                                    // character counter for json  
+  
+  for (int j=0;j<num_elements;j++){                             // do the loop for every element/condition
+    boolean quote = false; int nn = false;                      // if quote=fals means no quotes so comma means break
+    while (!client.find(metroConds[j])){}                            // find the part we are interested in.
+  
+    String Str1 = metroConds[j];                                     // Str1 gets the name of element/condition
+  
+    for (int l=0; l<(Str1.length());l++)                        // for as many character one by one
+        {json[n] = Str1[l];                                     // fill the json string with the name
+         n++;}                                                  // character count +1
+    while (i<5000) {                                            // timer/counter
+      if(client.available()) {                                  // if character found in receive-buffer
+        char c = client.read();                                 // read that character
+          // Serial.print(c);                                   // 
+// ************************ construction of json string converting comma's inside quotes to dots ********************        
+               if ((c=='"') && (quote==false))                  // there is a " and quote=false, so start of new element
+                  {quote = true;nn=n;}                          // make quote=true and notice place in string
+               if ((c==',')&&(quote==true)) {c='.';}            // if there is a comma inside quotes, comma becomes a dot.
+               if ((c=='"') && (quote=true)&&(nn!=n))           // if there is a " and quote=true and on different position
+                  {quote = false;}                              // quote=false meaning end of element between ""
+               if((c==',')&&(quote==false)) break;              // if comma delimiter outside "" then end of this element
+ // ****************************** end of construction ******************************************************
+          json[n]=c;                                            // fill json string with this character
+          n++;                                                  // character count + 1
+          i=0;                                                  // timer/counter + 1
+        }
+        i++;                                                    // add 1 to timer/counter
+      }                    // end while i<5000
+     if (j==num_elements-1)                                     // if last element
+        {json[n]='}';}                                          // add end bracket of json string
+     else                                                       // else
+        {json[n]=',';}                                          // add comma as element delimiter
+     n++;                                                       // next place in json string
+  }
+  //Serial.println(json);                                       // debugging json string 
+  parseJSON(json);                                              // extract the conditions
 }
               
 void MetroCheckC()
 {
-  colorWipe(pixels.Color(0, 150, 214), 0); // Set all neopixels to Blue
+  Serial.print("Metro C: connecting to ");
+  Serial.println(WMATAServer);
   
-  // *** MAIN CODE HERE :) *** 
+  // Use WiFiClient class to create TCP connections
+  WiFiClient client;
   
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("LN  CAR  DEST  MIN");
+  const int httpPort = 443;
   
-  // If train is arriving 
-  FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
-  matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-  matrix.writeDisplay();
+  if (!client.connect(WMATAServer, httpPort)) {
+    Serial.println("connection failed");
+    return;
+  }
   
-  // If train is boarding
-  FadeInOut(0, 150, 214, waitTime); // Fade in and out Blue
-  matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"  
-  matrix.writeDisplay();
+  String cmd = "GET /StationPrediction.svc/json/GetPrediction/";  cmd += stationCodeA;      // build request_string cmd
+  cmd += "?api_key=";  cmd += myKey;  //
+  cmd += " HTTP/1.1\r\nHost: api.wmata.com\r\n\r\n";            
+  delay(500);
+  client.print(cmd);                                            
+  delay(500);
+  unsigned int i = 0;                                           // timeout counter
+  char json[buffer_size]="{";                                   // first character for json-string is begin-bracket 
+  int n = 1;                                                    // character counter for json  
   
+  for (int j=0;j<num_elements;j++){                             // do the loop for every element/condition
+    boolean quote = false; int nn = false;                      // if quote=fals means no quotes so comma means break
+    while (!client.find(metroConds[j])){}                            // find the part we are interested in.
+  
+    String Str1 = metroConds[j];                                     // Str1 gets the name of element/condition
+  
+    for (int l=0; l<(Str1.length());l++)                        // for as many character one by one
+        {json[n] = Str1[l];                                     // fill the json string with the name
+         n++;}                                                  // character count +1
+    while (i<5000) {                                            // timer/counter
+      if(client.available()) {                                  // if character found in receive-buffer
+        char c = client.read();                                 // read that character
+          // Serial.print(c);                                   // 
+// ************************ construction of json string converting comma's inside quotes to dots ********************        
+               if ((c=='"') && (quote==false))                  // there is a " and quote=false, so start of new element
+                  {quote = true;nn=n;}                          // make quote=true and notice place in string
+               if ((c==',')&&(quote==true)) {c='.';}            // if there is a comma inside quotes, comma becomes a dot.
+               if ((c=='"') && (quote=true)&&(nn!=n))           // if there is a " and quote=true and on different position
+                  {quote = false;}                              // quote=false meaning end of element between ""
+               if((c==',')&&(quote==false)) break;              // if comma delimiter outside "" then end of this element
+ // ****************************** end of construction ******************************************************
+          json[n]=c;                                            // fill json string with this character
+          n++;                                                  // character count + 1
+          i=0;                                                  // timer/counter + 1
+        }
+        i++;                                                    // add 1 to timer/counter
+      }                    // end while i<5000
+     if (j==num_elements-1)                                     // if last element
+        {json[n]='}';}                                          // add end bracket of json string
+     else                                                       // else
+        {json[n]=',';}                                          // add comma as element delimiter
+     n++;                                                       // next place in json string
+  }
+  //Serial.println(json);                                       // debugging json string 
+  parseJSON(json);                                              // extract the conditions
 }              
               
 void MetroCheckD()
 {
-  colorWipe(pixels.Color(167, 169, 172), 0); // Set all neopixels to Silver
+  Serial.print("Metro D: connecting to ");
+  Serial.println(WMATAServer);
   
-  // *** MAIN CODE HERE :) *** 
+  // Use WiFiClient class to create TCP connections
+  WiFiClient client;
   
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("LN  CAR  DEST  MIN");
+  const int httpPort = 443;
   
-  // If train is arriving 
-  FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
-  matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-  matrix.writeDisplay();
+  if (!client.connect(WMATAServer, httpPort)) {
+    Serial.println("connection failed");
+    return;
+  }
   
-  // If train is boarding
-  FadeInOut(167, 169, 172, waitTime); // Fade in and out Silver
-  matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-  matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-  matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"   
-  matrix.writeDisplay(); 
-
+  String cmd = "GET /StationPrediction.svc/json/GetPrediction/";  cmd += stationCodeA;      // build request_string cmd
+  cmd += "?api_key=";  cmd += myKey;  //
+  cmd += " HTTP/1.1\r\nHost: api.wmata.com\r\n\r\n";            
+  delay(500);
+  client.print(cmd);                                            
+  delay(500);
+  unsigned int i = 0;                                           // timeout counter
+  char json[buffer_size]="{";                                   // first character for json-string is begin-bracket 
+  int n = 1;                                                    // character counter for json  
+  
+  for (int j=0;j<num_elements;j++){                             // do the loop for every element/condition
+    boolean quote = false; int nn = false;                      // if quote=fals means no quotes so comma means break
+    while (!client.find(metroConds[j])){}                            // find the part we are interested in.
+  
+    String Str1 = metroConds[j];                                     // Str1 gets the name of element/condition
+  
+    for (int l=0; l<(Str1.length());l++)                        // for as many character one by one
+        {json[n] = Str1[l];                                     // fill the json string with the name
+         n++;}                                                  // character count +1
+    while (i<5000) {                                            // timer/counter
+      if(client.available()) {                                  // if character found in receive-buffer
+        char c = client.read();                                 // read that character
+          // Serial.print(c);                                   // 
+// ************************ construction of json string converting comma's inside quotes to dots ********************        
+               if ((c=='"') && (quote==false))                  // there is a " and quote=false, so start of new element
+                  {quote = true;nn=n;}                          // make quote=true and notice place in string
+               if ((c==',')&&(quote==true)) {c='.';}            // if there is a comma inside quotes, comma becomes a dot.
+               if ((c=='"') && (quote=true)&&(nn!=n))           // if there is a " and quote=true and on different position
+                  {quote = false;}                              // quote=false meaning end of element between ""
+               if((c==',')&&(quote==false)) break;              // if comma delimiter outside "" then end of this element
+ // ****************************** end of construction ******************************************************
+          json[n]=c;                                            // fill json string with this character
+          n++;                                                  // character count + 1
+          i=0;                                                  // timer/counter + 1
+        }
+        i++;                                                    // add 1 to timer/counter
+      }                    // end while i<5000
+     if (j==num_elements-1)                                     // if last element
+        {json[n]='}';}                                          // add end bracket of json string
+     else                                                       // else
+        {json[n]=',';}                                          // add comma as element delimiter
+     n++;                                                       // next place in json string
+  }
+  //Serial.println(json);                                       // debugging json string 
+  parseJSON(json);                                              // extract the conditions
 }
               
 void GetTime()
