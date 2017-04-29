@@ -18,8 +18,8 @@
  * 4/13/2017 - Added metro colors
  * 4/23/2017 - Update LCD Library include
  * 4/26/2017 - Added some code
- * 4/27/2017 - Added JSON parsing, modified code and libraries, ....
- * 4/28/2017 - Changed neopixel brightness, parsing port (parsing), and added neopixel sparkle code (arrival)
+ * 4/27/2017 - Added JSON parsing, modified code and libraries, INITIAL RELEASE!
+ * 4/28/2017 - Changed neopixel brightness, parsing port (parsing), and added neopixel sparkle code (arrival), Working release!!
  * 
  *
 */
@@ -72,7 +72,7 @@ Adafruit_7segment matrix = Adafruit_7segment();
 
 // LCD setup
 //LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
-LiquidCrystal_I2C lcd(0x3F,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 
 // ** Default WiFi connection Information **
@@ -80,8 +80,7 @@ const char* ap_default_ssid = "esp8266";   // Default SSID.
 const char* ap_default_psk  = "esp8266";   // Default PSK.
 
 // ** WMATA Information **
-// Usage: https://api.wmata.com/StationPrediction.svc/json/GetPrediction/{StationCodes}
-// API Calling Usage: https://api.wmata.com/StationPrediction.svc/json/GetPrediction/<STATION>?api_key=<API-KEY>
+// API Calling Usage: https://api.wmata.com/StationPrediction.svc/json/GetPrediction/<STATIONCODE>?api_key=<API-KEY>
 
 #define      WMATAServer       "api.wmata.com" // name address for WMATA (using DNS)
 const String myKey           = "API_KEY";           // See: https://developer.wmata.com/ (change here with your Primary/Secondary API KEY)
@@ -120,7 +119,7 @@ char* metroConds[]={
 
 int num_elements        = 9;  // number of conditions you are retrieving, count of elements in conds
 
-//unsigned long WMillis   = 0;                           // temporary millis() register
+unsigned long WMillis   = 0;                           // temporary millis() register
 
 
 // ** NTP SERVER INFORMATION **
@@ -222,7 +221,7 @@ void setup()
   matrix.begin(0x70);
   matrix.print(1234);  // 7 Segment LED
   matrix.writeDisplay();
-  delay(1000);
+  delay(1000); 
   lcd.begin(20, 4);
   lcd.clear();
   lcd.setCursor(0,0);
@@ -497,7 +496,7 @@ void MetroCheckA()
     boolean quote = false; int nn = false;                      // if quote=fals means no quotes so comma means break
     while (!client.find(metroConds[j])){}                            // find the part we are interested in.
   
-    String Str1 = metroConds[j];                                     // Str1 gets the name of element/condition
+    String Str1= metroConds[j];                                     // Str1 gets the name of element/condition
   
     for (int l=0; l<(Str1.length());l++)                        // for as many character one by one
         {json[n] = Str1[l];                                     // fill the json string with the name
@@ -505,7 +504,7 @@ void MetroCheckA()
     while (i<5000) {                                            // timer/counter
       if(client.available()) {                                  // if character found in receive-buffer
         char c = client.read();                                 // read that character
-          // Serial.print(c);                                   // 
+           Serial.print(c);                                   // 
 // ************************ construction of json string converting comma's inside quotes to dots ********************        
                if ((c=='"') && (quote==false))                  // there is a " and quote=false, so start of new element
                   {quote = true;nn=n;}                          // make quote=true and notice place in string
@@ -526,8 +525,9 @@ void MetroCheckA()
         {json[n]=',';}                                          // add comma as element delimiter
      n++;                                                       // next place in json string
   }
-  //Serial.println(json);                                       // debugging json string 
+  Serial.println(json);                                         // debugging json string 
   parseJSON(json);                                              // extract the conditions
+  WMillis=millis();
 }
 
 void MetroCheckB()
@@ -545,7 +545,7 @@ void MetroCheckB()
     return;
   }
   
-  String cmd = "GET /StationPrediction.svc/json/GetPrediction/";  cmd += stationCodeA;      // build request_string cmd
+  String cmd = "GET /StationPrediction.svc/json/GetPrediction/";  cmd += stationCodeB;      // build request_string cmd
   cmd += "?api_key=";  cmd += myKey;  //
   cmd += " HTTP/1.1\r\nHost: api.wmata.com\r\n\r\n";            
   delay(500);
@@ -567,7 +567,7 @@ void MetroCheckB()
     while (i<5000) {                                            // timer/counter
       if(client.available()) {                                  // if character found in receive-buffer
         char c = client.read();                                 // read that character
-          // Serial.print(c);                                   // 
+           Serial.print(c);                                     // 
 // ************************ construction of json string converting comma's inside quotes to dots ********************        
                if ((c=='"') && (quote==false))                  // there is a " and quote=false, so start of new element
                   {quote = true;nn=n;}                          // make quote=true and notice place in string
@@ -588,7 +588,7 @@ void MetroCheckB()
         {json[n]=',';}                                          // add comma as element delimiter
      n++;                                                       // next place in json string
   }
-  //Serial.println(json);                                       // debugging json string 
+  Serial.println(json);                                         // debugging json string 
   parseJSON(json);                                              // extract the conditions
 }
               
@@ -607,7 +607,7 @@ void MetroCheckC()
     return;
   }
   
-  String cmd = "GET /StationPrediction.svc/json/GetPrediction/";  cmd += stationCodeA;      // build request_string cmd
+  String cmd = "GET /StationPrediction.svc/json/GetPrediction/";  cmd += stationCodeC;      // build request_string cmd
   cmd += "?api_key=";  cmd += myKey;  //
   cmd += " HTTP/1.1\r\nHost: api.wmata.com\r\n\r\n";            
   delay(500);
@@ -629,7 +629,7 @@ void MetroCheckC()
     while (i<5000) {                                            // timer/counter
       if(client.available()) {                                  // if character found in receive-buffer
         char c = client.read();                                 // read that character
-          // Serial.print(c);                                   // 
+           Serial.print(c);                                     // 
 // ************************ construction of json string converting comma's inside quotes to dots ********************        
                if ((c=='"') && (quote==false))                  // there is a " and quote=false, so start of new element
                   {quote = true;nn=n;}                          // make quote=true and notice place in string
@@ -650,7 +650,7 @@ void MetroCheckC()
         {json[n]=',';}                                          // add comma as element delimiter
      n++;                                                       // next place in json string
   }
-  //Serial.println(json);                                       // debugging json string 
+  Serial.println(json);                                         // debugging json string 
   parseJSON(json);                                              // extract the conditions
 }              
               
@@ -669,7 +669,7 @@ void MetroCheckD()
     return;
   }
   
-  String cmd = "GET /StationPrediction.svc/json/GetPrediction/";  cmd += stationCodeA;      // build request_string cmd
+  String cmd = "GET /StationPrediction.svc/json/GetPrediction/";  cmd += stationCodeD;      // build request_string cmd
   cmd += "?api_key=";  cmd += myKey;  //
   cmd += " HTTP/1.1\r\nHost: api.wmata.com\r\n\r\n";            
   delay(500);
@@ -691,7 +691,7 @@ void MetroCheckD()
     while (i<5000) {                                            // timer/counter
       if(client.available()) {                                  // if character found in receive-buffer
         char c = client.read();                                 // read that character
-          // Serial.print(c);                                   // 
+           Serial.print(c);                                     // 
 // ************************ construction of json string converting comma's inside quotes to dots ********************        
                if ((c=='"') && (quote==false))                  // there is a " and quote=false, so start of new element
                   {quote = true;nn=n;}                          // make quote=true and notice place in string
@@ -712,7 +712,7 @@ void MetroCheckD()
         {json[n]=',';}                                          // add comma as element delimiter
      n++;                                                       // next place in json string
   }
-  //Serial.println(json);                                       // debugging json string 
+  Serial.println(json);                                         // debugging json string 
   parseJSON(json);                                              // extract the conditions
 }
               
@@ -767,7 +767,7 @@ void GetTime()
 
 void FadeInOut(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
 
-  for(uint8_t b=128; b <255; b++) {
+  for(uint8_t b=60; b <128; b++) {
      for(uint8_t i=0; i < pixels.numPixels(); i++) {
         pixels.setPixelColor(i, red*b/255, green*b/255, blue*b/255);
      }
@@ -775,7 +775,7 @@ void FadeInOut(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
      delay(wait);
   }
 
-  for(uint8_t b=255; b > 128; b--) {
+  for(uint8_t b=128; b > 60; b--) {
      for(uint8_t i=0; i < pixels.numPixels(); i++) {
         pixels.setPixelColor(i, red*b/255, green*b/255, blue*b/255);
      }
@@ -787,6 +787,7 @@ void FadeInOut(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
 // Fill the dots one after the other with a color
 void colorWipe(uint32_t c, uint8_t wait) {
   for(uint16_t i=0; i<pixels.numPixels(); i++) {
+      pixels.setBrightness(128);
       pixels.setPixelColor(i, c);
       pixels.show();
       delay(wait);
@@ -799,6 +800,7 @@ void rainbowCycle(uint8_t wait) {
  
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
     for(i=0; i< pixels.numPixels(); i++) {
+      pixels.setBrightness(128);
       pixels.setPixelColor(i, Wheel(((i * 256 / pixels.numPixels()) + j) & 255));
     }
     pixels.show();
@@ -822,6 +824,7 @@ uint32_t Wheel(byte WheelPos) {
 
 void Sparkle(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
   int Pixel = random(NUMPIXELS);
+  pixels.setBrightness(128);
   pixels.setPixelColor(Pixel, pixels.Color(red, green, blue)); 
   pixels.show();
   delay(wait);
@@ -847,16 +850,26 @@ void parseJSON(char json[300])
  const char* DestinationCode  = root["DestinationCode"];
  const char* DestinationName  = root["DestinationName"];
  double Group                 = root["Group"];
- const char* Line             = root["Line"];
+ String Line                  = root["Line"];
  const char* LocationCode     = root["LocationCode"];
  const char* LocationName     = root["LocationName"];
  const char* CMin             = root["Min"];
- int Min                      = root["Min"];
+ float Min                    = root["Min"];
 
+ Serial.println(Car);
+ Serial.println(Destination);
+ Serial.println(DestinationCode);
+ Serial.println(DestinationName);
+ Serial.println(Group);
+ Serial.println(Line);
+ Serial.println(LocationCode);
+ Serial.println(CMin);
+ Serial.println(Min);
 
  if (Line == "RD")
  {
-  colorWipe(pixels.Color(209 ,18, 66), 0); // set all neopixels to Red
+  Serial.println("RED LINE");
+  colorWipe(pixels.Color(255 ,0, 0), 0); // set all neopixels to Red
   lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
@@ -868,20 +881,25 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Min);
     
-  if (CMin == "ARR")  // If train is arriving 
+  if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
-    FadeInOut(209 ,18, 66, waitTime);    // Fade in and out Red
-    matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    FadeInOut(255 ,0, 0, waitTime);    // Fade in and out Red
+    //matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDisplay();
+    matrix.print(Min);
     matrix.writeDisplay();
   }
-  else if (CMin == "BRD")   // If train is boarding
+  else if (Min >= 0 && Min <= 1.00)   // If train is boarding
   {
-    Sparkle(209 ,18, 66, waitTime);      // Sparkle Red
-    matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+    Sparkle(255 ,0, 0, waitTime);      // Sparkle Red
+    //matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+    //matrix.writeDisplay();
+    matrix.print(Min);
+    matrix.writeDisplay();
   }
   else
   {
@@ -891,7 +909,8 @@ void parseJSON(char json[300])
  } 
  else if (Line == "OR")
  {
-  colorWipe(pixels.Color(248, 151, 29), 0); // set all neopixels to Orange
+  Serial.println("ORANGE LINE");
+  colorWipe(pixels.Color(255, 165, 0), 0); // set all neopixels to Orange
   lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
@@ -903,20 +922,25 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Min);
     
-  if (CMin == "ARR")  // If train is arriving 
+  if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
-    FadeInOut(248, 151, 29, waitTime);   // Fade in and out Orange
-    matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    FadeInOut(255, 165, 0, waitTime);   // Fade in and out Orange
+    //matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDisplay();
+    matrix.print(Min);
     matrix.writeDisplay();
   }
-  else if (CMin == "BRD")   // If train is boarding
+  else if (Min >= 0 && Min <= 1.00)   // If train is boarding
   {
-    Sparkle(248, 151, 29, waitTime);     // Sparkle Orange
-    matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+    Sparkle(255, 165, 0, waitTime);     // Sparkle Orange
+    //matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"
+    //matrix.writeDisplay();
+    matrix.print(Min);
+    matrix.writeDisplay();
   }
   else
   {
@@ -926,7 +950,8 @@ void parseJSON(char json[300])
  }
  else if (Line == "YL")
  {
-  colorWipe(pixels.Color(255, 221, 0), 0); // set all neopixels to Yellow
+  Serial.println("YELLOW LINE");
+  colorWipe(pixels.Color(255, 255, 0), 0); // set all neopixels to Yellow
   lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
@@ -938,20 +963,25 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Min);
     
-  if (CMin == "ARR")  // If train is arriving 
+  if (Min > 1.00 && Min <= 3.00)  // If train is arriving 
   {  
-    FadeInOut(255, 221, 0, waitTime);    // Fade in and out Yellow
-    matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    FadeInOut(255, 255, 0, waitTime);    // Fade in and out Yellow
+    //matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDisplay();
+    matrix.print(Min);
     matrix.writeDisplay();
   }
-  else if (CMin == "BRD")   // If train is boarding
+  else if (Min >= 0 && Min <= 1.00)   // If train is boarding
   {
-    Sparkle(255, 221, 0, waitTime);      // Sparkle Yellow
-    matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+    Sparkle(255, 255, 0, waitTime);      // Sparkle Yellow
+    //matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+    //matrix.writeDisplay();
+    matrix.print(Min);
+    matrix.writeDisplay();
   }
   else
   {
@@ -961,7 +991,8 @@ void parseJSON(char json[300])
  }
  else if (Line == "GR")
  {
-  colorWipe(pixels.Color(0, 183, 96), 0); // set all neopixels to Green
+  Serial.println("GREEN LINE");
+  colorWipe(pixels.Color(0, 128, 0), 0); // set all neopixels to Green
   lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
@@ -973,20 +1004,25 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Min);
     
-  if (CMin == "ARR")  // If train is arriving 
+  if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
-    FadeInOut(0, 183, 96, waitTime);     // Fade in and out Green
-    matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    FadeInOut(0, 128, 0, waitTime);     // Fade in and out Green
+    //matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDisplay();
+    matrix.print(Min);
     matrix.writeDisplay();
   }
-  else if (CMin == "BRD")   // If train is boarding
+  else if (Min >= 0 && Min <= 1.00)   // If train is boarding
   {
-    Sparkle(0, 183, 96, waitTime);       // Sparkle Green
-    matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+    Sparkle(0, 128, 0, waitTime);       // Sparkle Green
+    //matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+    //matrix.writeDisplay();
+    matrix.print(Min);
+    matrix.writeDisplay();
   }
   else
   {
@@ -996,7 +1032,8 @@ void parseJSON(char json[300])
  }
  else if (Line == "BL")
  {
-  colorWipe(pixels.Color(0, 150, 214), 0); // set all neopixels to Blue
+  Serial.println("BLUE LINE");
+  colorWipe(pixels.Color(0, 0, 255), 0); // set all neopixels to Blue
   lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
@@ -1008,20 +1045,25 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Min);
     
-  if (CMin == "ARR")  // If train is arriving 
+  if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
-    FadeInOut(0, 150, 214, waitTime);    // Fade in and out Blue
-    matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    FadeInOut(0, 0, 255, waitTime);    // Fade in and out Blue
+    //matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDisplay();
+    matrix.print(Min);
     matrix.writeDisplay();
   }
-  else if (CMin == "BRD")   // If train is boarding
+  else if (Min >= 0 && Min <= 1.00)   // If train is boarding
   {
-    Sparkle(0, 150, 214, waitTime);      // Sparkle Blue
-    matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+    Sparkle(0, 0, 255, waitTime);      // Sparkle Blue
+    //matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+    //matrix.writeDisplay();
+    matrix.print(Min);
+    matrix.writeDisplay();
   }
   else
   {
@@ -1031,7 +1073,8 @@ void parseJSON(char json[300])
  }
  else if (Line == "SV")
  {
-  colorWipe(pixels.Color(167, 169, 172), 0); // set all neopixels to Silver
+  Serial.println("SILVER LINE");
+  colorWipe(pixels.Color(192, 192, 192), 0); // set all neopixels to Silver
   lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
@@ -1043,20 +1086,25 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Min);
     
-  if (CMin == "ARR")  // If train is arriving 
+  if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
-    FadeInOut(167, 169, 172, waitTime);  // Fade in and out Silver
-    matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    FadeInOut(192, 192, 192, waitTime);  // Fade in and out Silver
+    //matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
+    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDisplay();
+    matrix.print(Min);
     matrix.writeDisplay();
   }
-  else if (CMin == "BRD")   // If train is boarding
+  else if (Min >= 0 && Min <= 1.00)   // If train is boarding
   {
-    Sparkle(167, 169, 172, waitTime);    // Sparkle Silver
-    matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-    matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+    Sparkle(192, 192, 192, waitTime);    // Sparkle Silver
+    //matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
+    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
+    //matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
+    //matrix.writeDisplay();
+    matrix.print(Min);
+    matrix.writeDisplay();
   }
   else
   {
@@ -1066,6 +1114,7 @@ void parseJSON(char json[300])
  }
  else if (Line == "--")
  {
+  Serial.println("LINE/TRAIN OUT OF SERVICE");
   colorWipe(pixels.Color(212, 0, 212), 0); // set all neopixels to Purple
   lcd.clear();
   lcd.setCursor(0,0);
@@ -1080,7 +1129,7 @@ void parseJSON(char json[300])
   lcd.print(Destination);
   lcd.print("  ");
   lcd.print(Min);
-    
+
   matrix.writeDigitRaw(0, B01011100);  // 7 Segment LED "O"
   matrix.writeDigitRaw(1, B01011100);  // 7 Segment LED "O"
   matrix.writeDigitRaw(3, B01101101);  // 7 Segment LED "S"
@@ -1088,6 +1137,11 @@ void parseJSON(char json[300])
  }
  else
  {
+  Serial.println("LINE UNKNOWN");
+  colorWipe(pixels.Color(128, 0, 128), 0); // set all neopixels to Purple
+  matrix.print(Min);
+  matrix.writeDisplay();
+  
 	lcd.clear();
 	lcd.setCursor(0,0);
 	lcd.print("Line Unknown");
