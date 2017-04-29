@@ -3,6 +3,7 @@
 Brian Leschke 2017
 
  ** Update 4/9/17: Coding has begun (work in progress)! 
+ ** Update 4/28/17: Working release (minor bugs) 
 
 ## **Overview**
 
