@@ -1,4 +1,3 @@
-
 /* 
  * Brian Leschke
  * April 27, 2017
@@ -22,6 +21,8 @@
  * 4/27/2017 - Added JSON parsing, modified code and libraries, INITIAL RELEASE!
  * 4/28/2017 - Changed neopixel brightness, parsing port (parsing), and added neopixel sparkle code (arrival)
  * 4/30/2017 - fixed color notifications and modified button.
+ * 
+ *
  *
  *
 */
@@ -37,9 +38,7 @@
 #include <ArduinoJson.h>
 #include <SPI.h>
 
-//#include <I2CIO.h>
-//#include <LCD.h>
-//#include <LiquidCrystal.h>
+#include <LCD.h>
 #include <LiquidCrystal_I2C.h>
 #include <Adafruit_GFX.h>
 #include <gfxfont.h>
@@ -69,13 +68,13 @@ uint32_t metroYellow = pixels.Color(255, 221, 0);     // convert color value to 
 uint32_t metroGreen = pixels.Color(0, 183, 96);       // convert color value to name "metroGreen"
 uint32_t metroSilver = pixels.Color(167, 169, 172);   // convert color value to name "metroSilver"
 
-// 7-segment LED setup
+// ** 7-segment LED setup **
 Adafruit_7segment matrix = Adafruit_7segment();
 
-// LCD setup
-LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
-//LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
-
+// ** LCD setup **
+#define BACKLIGHT_PIN (3)
+#define LED_ADDR (0x27)      // might need to be 0x3F, if 0x27 doesn't work
+LiquidCrystal_I2C lcd(LED_ADDR, 2, 1, 0, 4, 5, 6, 7, BACKLIGHT_PIN, POSITIVE);  // Set the LCD I2C address
 
 // ** Default WiFi connection Information **
 const char* ap_default_ssid = "esp8266";   // Default SSID.
@@ -91,7 +90,7 @@ const String stationCodeB    = "STATION_CODE";      // Metro station code 2
 const String stationCodeC    = "STATION_CODE";      // Metro station code 3
 const String stationCodeD    = "STATION_CODE";      // Metro station code 4
 
-const String stationA        = "STATION_NAME-CUA";      // Metro station name. ex. Shady Grove
+const String stationA        = "STATION_NAME";      // Metro station name. ex. Shady Grove
 const String stationB        = "STATION_NAME";      // Metro station name. ex. Shady Grove
 const String stationC        = "STATION_NAME";      // Metro station name. ex. Shady Grove
 const String stationD        = "STATION_NAME";      // Metro station name. ex. Shady Grove 
@@ -103,7 +102,7 @@ int counter                          = 0;           // Do not change.
 
 
 // ** JSON Parser Information
-const int buffer_size = 300;                        // length of json buffer. Do not change. 
+const int buffer_size = 300;                        // length of json buffer
 const int buffer=300;                               // Do not change.
 
 int passNum = 1;                                    // Do not change.
@@ -225,7 +224,7 @@ void setup()
   matrix.print(1234);  // 7 Segment LED
   matrix.writeDisplay();
   delay(1000); 
-  lcd.begin(20, 4);
+  lcd.begin(20,4);
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("WMATA Status");
@@ -1023,7 +1022,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Destination);
   lcd.print("  ");
-  lcd.print(Min);
+  lcd.print(CMin);
     
   if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   { 
@@ -1066,7 +1065,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Destination);
   lcd.print("  ");
-  lcd.print(Min);
+  lcd.print(CMin);
     
   if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
@@ -1110,7 +1109,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Destination);
   lcd.print("  ");
-  lcd.print(Min);
+  lcd.print(CMin);
     
   if (Min > 1.00 && Min <= 3.00)  // If train is arriving 
   {  
@@ -1153,7 +1152,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Destination);
   lcd.print("  ");
-  lcd.print(Min);
+  lcd.print(CMin);
     
   if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
@@ -1196,7 +1195,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Destination);
   lcd.print("  ");
-  lcd.print(Min);
+  lcd.print(CMin);
     
   if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
@@ -1239,7 +1238,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Destination);
   lcd.print("  ");
-  lcd.print(Min);
+  lcd.print(CMin);
     
   if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
