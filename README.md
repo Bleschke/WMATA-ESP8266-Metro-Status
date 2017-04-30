@@ -1,10 +1,8 @@
 # WMATA-ESP8266-Metro-Status
 
 Brian Leschke 2017
-
- ** Update 4/9/17: Coding has begun (work in progress)! 
  
- ** Update 4/28/17: Working release (minor bugs) 
+ ** Update 4/30/17: Fully Working release!
 
 ## **Overview**
 
@@ -58,7 +56,7 @@ The following libraries are required for this project:
   * [Arduino Framework (core library)](https://github.com/esp8266/Arduino)
   * ArduinoOTA
   * ArduinoJson
-  * LiquidCrystal_I2C2004V1 (or any supporting version for your lcd)
+  * LiquidCrystal_V1.2.1 (or any supporting version for your lcd)
   * Adafruit_Neopixel
   * ESP8266WiFi
   * NTPClient
