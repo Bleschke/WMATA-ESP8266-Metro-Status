@@ -1,6 +1,7 @@
+
 /* 
  * Brian Leschke
- * April 28, 2017
+ * April 27, 2017
  * Adafruit Huzzah WMATA ESP8266 Metro Status
  * An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 16x4 LCD screen (station updates).
  * Version 1.0
@@ -19,8 +20,9 @@
  * 4/23/2017 - Update LCD Library include
  * 4/26/2017 - Added some code
  * 4/27/2017 - Added JSON parsing, modified code and libraries, INITIAL RELEASE!
- * 4/28/2017 - Changed neopixel brightness, parsing port (parsing), and added neopixel sparkle code (arrival), Working release!!
- * 
+ * 4/28/2017 - Changed neopixel brightness, parsing port (parsing), and added neopixel sparkle code (arrival)
+ * 4/30/2017 - fixed color notifications and modified button.
+ *
  *
 */
 
@@ -35,7 +37,7 @@
 #include <ArduinoJson.h>
 #include <SPI.h>
 
-//include <I2CIO.h>
+//#include <I2CIO.h>
 //#include <LCD.h>
 //#include <LiquidCrystal.h>
 #include <LiquidCrystal_I2C.h>
@@ -71,8 +73,8 @@ uint32_t metroSilver = pixels.Color(167, 169, 172);   // convert color value to 
 Adafruit_7segment matrix = Adafruit_7segment();
 
 // LCD setup
-//LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
-LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
+//LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 
 // ** Default WiFi connection Information **
@@ -89,21 +91,22 @@ const String stationCodeB    = "STATION_CODE";      // Metro station code 2
 const String stationCodeC    = "STATION_CODE";      // Metro station code 3
 const String stationCodeD    = "STATION_CODE";      // Metro station code 4
 
-const String stationA        = "STATION_NAME";      // Metro station name. ex. Shady Grove
+const String stationA        = "STATION_NAME-CUA";      // Metro station name. ex. Shady Grove
 const String stationB        = "STATION_NAME";      // Metro station name. ex. Shady Grove
 const String stationC        = "STATION_NAME";      // Metro station name. ex. Shady Grove
 const String stationD        = "STATION_NAME";      // Metro station name. ex. Shady Grove 
   
 long metroCheckInterval              = 60000;       // DO NOT Exceed 50000 API calls a day. Time (milliseconds) until next metro train check.
 unsigned long previousMetroMillis    = 0;           // Do not change.
-int changeButton             = 13;
+int changeButton                     = 14;          // Do not change.
+int counter                          = 0;           // Do not change.
 
 
 // ** JSON Parser Information
-const int buffer_size = 300;                         // length of json buffer
-const int buffer=300;
+const int buffer_size = 300;                        // length of json buffer. Do not change. 
+const int buffer=300;                               // Do not change.
 
-int passNum = 1;
+int passNum = 1;                                    // Do not change.
 
 char* metroConds[]={
    "\"Car\":",
@@ -236,13 +239,12 @@ void setup()
 
   Serial.begin(115200);
   pixels.begin(); // This initializes the NeoPixel library.
-  pinMode(changeButton, INPUT);
-  pinMode(12, OUTPUT);
-  digitalWrite(12, HIGH); //high pin for changeButton
+  pinMode(changeButton, INPUT_PULLUP);
+  
   
   pixels.setPixelColor(0, pixels.Color(0,0,0)); // OFF
   pixels.show(); // This sends the updated pixel color to the hardware.
-  rainbowCycle(20);  // Loading screen
+  rainbowCycle(10);  // Loading screen
 
   Serial.println("\r\n");
   Serial.print("Chip ID: 0x");
@@ -374,95 +376,238 @@ void setup()
               
 void DetermineStation()
 {
-  int counter;
   //Handle input
-  digitalRead(changeButton);
-  if(changeButton = HIGH)
+  Serial.println("button state:");
+  Serial.println(digitalRead(changeButton));
+  Serial.println("CHECKING FOR BUTTON PRESS");
+  if(digitalRead(changeButton) == LOW)
   {
-    counter = counter + 1;
+    counter = counter +1;
+    delay(100);
+    Serial.println("Button Pressed");
     //Reset count if over max mode number
-    if(counter == 1 )
+    if (counter <=0)
     {
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print(stationA);
-      delay(2000);      
-      MetroCheckA();
+      counter = counter +1;
+      Serial.println("counter set to 1");
+      DetermineStation();
     }
-    else if (counter == 2)
+    else if (counter < 2 && counter > 0)
     {
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print(stationB);
-      delay(2000);     
-      MetroCheckB();
+      // ** Metro Station A Check **
+      unsigned long currentMetroMillis = millis();
+      if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
+        previousMetroMillis = currentMetroMillis; //remember the time(millis)
+        Serial.println("Checking Station A");
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print(stationA);
+        delay(2000);
+        MetroCheckA();
+      }
+      else {
+        Serial.println("Station A: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Previous Millis: ");
+        Serial.println(previousMetroMillis);
+        Serial.println("Current Millis: ");
+        Serial.println(currentMetroMillis);
+        Serial.println("Subtracted Millis: ");
+        Serial.println(currentMetroMillis-previousMetroMillis);
+        Serial.println();
+      }
     }
-    else if (counter == 3)
+    else if (counter < 3 && counter > 1)
     {
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print(stationC);
-      delay(2000);     
-      MetroCheckC();
+      // ** Metro Station B Check **
+      unsigned long currentMetroMillis = millis();
+      if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
+        previousMetroMillis = currentMetroMillis; //remember the time(millis)
+        Serial.println("Checking Station B");
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print(stationB);
+        delay(2000);
+        MetroCheckB();
+      }
+      else {
+        Serial.println("Station B: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Previous Millis: ");
+        Serial.println(previousMetroMillis);
+        Serial.println("Current Millis: ");
+        Serial.println(currentMetroMillis);
+        Serial.println("Subtracted Millis: ");
+        Serial.println(currentMetroMillis-previousMetroMillis);
+        Serial.println();
+      }
     }
-    else if (counter == 4)
+    else if (counter < 4 && counter > 2)
     {
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print(stationD);
-      delay(2000);     
-      MetroCheckD();
+      // ** Metro Station C Check **
+      unsigned long currentMetroMillis = millis();
+      if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
+        previousMetroMillis = currentMetroMillis; //remember the time(millis)
+        Serial.println("Checking Station C");
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print(stationC);
+        delay(2000);
+        MetroCheckC();
+      }
+      else {
+        Serial.println("Station C: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Previous Millis: ");
+        Serial.println(previousMetroMillis);
+        Serial.println("Current Millis: ");
+        Serial.println(currentMetroMillis);
+        Serial.println("Subtracted Millis: ");
+        Serial.println(currentMetroMillis-previousMetroMillis);
+        Serial.println();
+      }
+    }
+    else if (counter < 5 && counter > 3)
+    {
+      // ** Metro Station D Check **
+      unsigned long currentMetroMillis = millis();
+      if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
+        previousMetroMillis = currentMetroMillis; //remember the time(millis)
+        Serial.println("Checking Station D");
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print(stationD);
+        delay(2000);
+        MetroCheckD();
+      }
+      else {
+        Serial.println("Station D: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Previous Millis: ");
+        Serial.println(previousMetroMillis);
+        Serial.println("Current Millis: ");
+        Serial.println(currentMetroMillis);
+        Serial.println("Subtracted Millis: ");
+        Serial.println(currentMetroMillis-previousMetroMillis);
+        Serial.println();
+      }
     }
     else
     {
-      Serial.println("ERROR: Value is <= 0 or > 4.");
-      counter = 1;
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print("ERROR: Button H");
-    }
-  }
-  else
-  {
-    if(counter == 1 )
-    {
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print(stationA);
-      delay(2000);  
-      MetroCheckA();
-    }
-    else if (counter == 2)
-    {
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print(stationB);
-      delay(2000);  
-      MetroCheckB();
-    }
-    else if (counter == 3)
-    {
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print(stationC);
-      delay(2000);  
-      MetroCheckC();
-    }
-    else if (counter == 4)
-    {
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print(stationD);
-      delay(2000);  
-      MetroCheckD();
-    }
-    else
-    {
-      Serial.println("ERROR: Value is <= 0 or > 4.");
+      Serial.println("ERROR: Low Value is <= 0 or > 4.");
       counter = 1;
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("ERROR: Button L");
+    }
+  }
+  else
+  {
+    if (counter <= 0 )
+    {
+      counter = counter +1;
+      Serial.println("counter set to 1");
+      DetermineStation();
+    }
+    else if (counter < 2 && counter > 0)
+    {
+      // ** Metro Station A Check **
+      unsigned long currentMetroMillis = millis();
+      if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
+        previousMetroMillis = currentMetroMillis; //remember the time(millis)
+        Serial.println("Checking Station A");
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print(stationA);
+        delay(2000);
+        MetroCheckA();
+      }
+      else {
+        Serial.println("Station A: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Previous Millis: ");
+        Serial.println(previousMetroMillis);
+        Serial.println("Current Millis: ");
+        Serial.println(currentMetroMillis);
+        Serial.println("Subtracted Millis: ");
+        Serial.println(currentMetroMillis-previousMetroMillis);
+        Serial.println();
+      }
+    }
+    else if (counter < 3 && counter > 1)
+    {
+      // ** Metro Station B Check **
+      unsigned long currentMetroMillis = millis();
+      if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
+        previousMetroMillis = currentMetroMillis; //remember the time(millis)
+        Serial.println("Checking Station B");
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print(stationB);
+        delay(2000);
+        MetroCheckB();
+      }
+      else {
+        Serial.println("Station B: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Previous Millis: ");
+        Serial.println(previousMetroMillis);
+        Serial.println("Current Millis: ");
+        Serial.println(currentMetroMillis);
+        Serial.println("Subtracted Millis: ");
+        Serial.println(currentMetroMillis-previousMetroMillis);
+        Serial.println();
+      }
+    }
+    else if (counter < 4 && counter > 2)
+    {
+      // ** Metro Station C Check **
+      unsigned long currentMetroMillis = millis();
+      if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
+        previousMetroMillis = currentMetroMillis; //remember the time(millis)
+        Serial.println("Checking Station C");
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print(stationC);
+        delay(2000);
+        MetroCheckC();
+      }
+      else {
+        Serial.println("Station C: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Previous Millis: ");
+        Serial.println(previousMetroMillis);
+        Serial.println("Current Millis: ");
+        Serial.println(currentMetroMillis);
+        Serial.println("Subtracted Millis: ");
+        Serial.println(currentMetroMillis-previousMetroMillis);
+        Serial.println();
+      }
+    }
+    else if (counter < 5 && counter > 3)
+    {
+      // ** Metro Station D Check **
+      unsigned long currentMetroMillis = millis();
+      if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
+        previousMetroMillis = currentMetroMillis; //remember the time(millis)
+        Serial.println("Checking Station D");
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print(stationD);
+        delay(2000);
+        MetroCheckD();
+      }
+      else {
+        Serial.println("Station D: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Previous Millis: ");
+        Serial.println(previousMetroMillis);
+        Serial.println("Current Millis: ");
+        Serial.println(currentMetroMillis);
+        Serial.println("Subtracted Millis: ");
+        Serial.println(currentMetroMillis-previousMetroMillis);
+        Serial.println();
+      }
+    }
+    else
+    {
+      Serial.println("ERROR: High Value is <= 0 or > 4.");
+      counter = 1;
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("ERROR: Button H");
     }
   }
 }
@@ -831,7 +976,6 @@ void Sparkle(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
   pixels.setPixelColor(Pixel,0,0,0);
 }
 
-
 void parseJSON(char json[300])
 {
   StaticJsonBuffer<buffer> jsonBuffer;
@@ -845,11 +989,11 @@ void parseJSON(char json[300])
 }
 
  
- double Car                   = root["Car"];
+ int Car                      = root["Car"];
  const char* Destination      = root["Destination"];
  const char* DestinationCode  = root["DestinationCode"];
  const char* DestinationName  = root["DestinationName"];
- double Group                 = root["Group"];
+ int Group                    = root["Group"];
  String Line                  = root["Line"];
  const char* LocationCode     = root["LocationCode"];
  const char* LocationName     = root["LocationName"];
@@ -882,24 +1026,26 @@ void parseJSON(char json[300])
   lcd.print(Min);
     
   if (Min > 1.00 && Min <= 3.00)  // If train is arriving
-  {  
-    FadeInOut(255 ,0, 0, waitTime);    // Fade in and out Red
-    //matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDisplay();
+  { 
     matrix.print(Min);
     matrix.writeDisplay();
+    
+    for(int i=0; i< 25; i++) {
+      FadeInOut(255 ,0, 0, waitTime);    // Fade in and out Red
+      delay(500);
+    }
+    colorWipe(pixels.Color(255 ,0, 0), 0); // set all neopixels back to Red
   }
   else if (Min >= 0 && Min <= 1.00)   // If train is boarding
   {
-    Sparkle(255 ,0, 0, waitTime);      // Sparkle Red
-    //matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
-    //matrix.writeDisplay();
     matrix.print(Min);
     matrix.writeDisplay();
+    
+    for(int i=0; i< 1500; i++) {
+      Sparkle(255 ,0, 0, waitTime);      // Sparkle Red
+      delay(20);
+    }
+    colorWipe(pixels.Color(255 ,0, 0), 0); // set all neopixels back to Red
   }
   else
   {
@@ -924,23 +1070,26 @@ void parseJSON(char json[300])
     
   if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
-    FadeInOut(255, 165, 0, waitTime);   // Fade in and out Orange
-    //matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDisplay();
     matrix.print(Min);
     matrix.writeDisplay();
+
+    for(int i=0; i< 25; i++) {
+      FadeInOut(255 ,165, 0, waitTime);    // Fade in and out Orange
+      delay(500);
+    }
+    colorWipe(pixels.Color(255 ,165, 0), 0); // set all neopixels back to Orange
   }
+  
   else if (Min >= 0 && Min <= 1.00)   // If train is boarding
   {
-    Sparkle(255, 165, 0, waitTime);     // Sparkle Orange
-    //matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D"
-    //matrix.writeDisplay();
     matrix.print(Min);
     matrix.writeDisplay();
+
+    for(int i=0; i< 1500; i++) {
+      Sparkle(255 ,165, 0, waitTime);      // Sparkle Orange
+      delay(20);
+    }
+    colorWipe(pixels.Color(255 ,165, 0), 0); // set all neopixels back to Orange
   }
   else
   {
@@ -965,23 +1114,25 @@ void parseJSON(char json[300])
     
   if (Min > 1.00 && Min <= 3.00)  // If train is arriving 
   {  
-    FadeInOut(255, 255, 0, waitTime);    // Fade in and out Yellow
-    //matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDisplay();
     matrix.print(Min);
     matrix.writeDisplay();
+
+    for(int i=0; i< 25; i++) {
+      FadeInOut(255 ,255, 0, waitTime);    // Fade in and out Yellow
+      delay(500);
+    }
+    colorWipe(pixels.Color(255 ,255, 0), 0); // set all neopixels back to Yellow
   }
   else if (Min >= 0 && Min <= 1.00)   // If train is boarding
   {
-    Sparkle(255, 255, 0, waitTime);      // Sparkle Yellow
-    //matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
-    //matrix.writeDisplay();
     matrix.print(Min);
     matrix.writeDisplay();
+
+    for(int i=0; i< 1500; i++) {
+      Sparkle(255 ,255, 0, waitTime);      // Sparkle Yellow
+      delay(20);
+    }
+    colorWipe(pixels.Color(255 ,255, 0), 0); // set all neopixels back to Yellow
   }
   else
   {
@@ -1006,23 +1157,25 @@ void parseJSON(char json[300])
     
   if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
-    FadeInOut(0, 128, 0, waitTime);     // Fade in and out Green
-    //matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDisplay();
     matrix.print(Min);
     matrix.writeDisplay();
+
+    for(int i=0; i< 25; i++) {
+      FadeInOut(0 ,128, 0, waitTime);    // Fade in and out Green
+      delay(500);
+    }
+    colorWipe(pixels.Color(0 ,128, 0), 0); // set all neopixels back to Green
   }
   else if (Min >= 0 && Min <= 1.00)   // If train is boarding
   {
-    Sparkle(0, 128, 0, waitTime);       // Sparkle Green
-    //matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
-    //matrix.writeDisplay();
     matrix.print(Min);
     matrix.writeDisplay();
+
+    for(int i=0; i< 1500; i++) {
+      Sparkle(0 ,128, 0, waitTime);      // Sparkle Green
+      delay(20);
+    }
+    colorWipe(pixels.Color(0,128, 0), 0); // set all neopixels back to Green
   }
   else
   {
@@ -1047,23 +1200,25 @@ void parseJSON(char json[300])
     
   if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
-    FadeInOut(0, 0, 255, waitTime);    // Fade in and out Blue
-    //matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDisplay();
     matrix.print(Min);
     matrix.writeDisplay();
+
+    for(int i=0; i< 25; i++) {
+      FadeInOut(0 ,0, 255, waitTime);    // Fade in and out Blue
+      delay(500);
+    }
+    colorWipe(pixels.Color(0 ,0, 255), 0); // set all neopixels back to Blue
   }
   else if (Min >= 0 && Min <= 1.00)   // If train is boarding
   {
-    Sparkle(0, 0, 255, waitTime);      // Sparkle Blue
-    //matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
-    //matrix.writeDisplay();
     matrix.print(Min);
     matrix.writeDisplay();
+
+    for(int i=0; i< 1500; i++) {
+      Sparkle(0 ,0, 255, waitTime);      // Sparkle Blue
+      delay(20);
+    }
+    colorWipe(pixels.Color(0,0, 255), 0); // set all neopixels back to Blue
   }
   else
   {
@@ -1088,23 +1243,25 @@ void parseJSON(char json[300])
     
   if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
-    FadeInOut(192, 192, 192, waitTime);  // Fade in and out Silver
-    //matrix.writeDigitRaw(0, B11101110);  // 7 Segment LED "A"
-    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDigitRaw(3, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDisplay();
     matrix.print(Min);
     matrix.writeDisplay();
+
+    for(int i=0; i< 25; i++) {
+      FadeInOut(192 ,192, 192, waitTime);    // Fade in and out Silver
+      delay(500);
+    }
+    colorWipe(pixels.Color(192 ,192, 192), 0); // set all neopixels back to Silver
   }
   else if (Min >= 0 && Min <= 1.00)   // If train is boarding
   {
-    Sparkle(192, 192, 192, waitTime);    // Sparkle Silver
-    //matrix.writeDigitRaw(0, B00111110);  // 7 Segment LED "B"
-    //matrix.writeDigitRaw(1, B00101000);  // 7 Segment LED "R"
-    //matrix.writeDigitRaw(3, B01111010);  // 7 Segment LED "D" 
-    //matrix.writeDisplay();
     matrix.print(Min);
     matrix.writeDisplay();
+
+    for(int i=0; i< 1500; i++) {
+      Sparkle(192 ,192, 192, waitTime);      // Sparkle Silver
+      delay(20);
+    }
+    colorWipe(pixels.Color(192,192, 192), 0); // set all neopixels back to Silver
   }
   else
   {
@@ -1130,6 +1287,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Min);
 
+  matrix.clear();
   matrix.writeDigitRaw(0, B01011100);  // 7 Segment LED "O"
   matrix.writeDigitRaw(1, B01011100);  // 7 Segment LED "O"
   matrix.writeDigitRaw(3, B01101101);  // 7 Segment LED "S"
@@ -1173,23 +1331,8 @@ void loop()
   //GetTime();
 
   // ** Metro Check **
-  unsigned long currentMetroMillis = millis();
-  
-  if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
-    Serial.println("Checking for Metro Train arrivals");
-    DetermineStation();
-    previousMetroMillis = currentMetroMillis; //remember the time(millis)
-  }
-  else {
-    Serial.println("Bypassing Metro Check. Less than 1 minute since last check.");
-    Serial.println("Previous Millis: ");
-    Serial.println(previousMetroMillis);
-    Serial.println("Current Millis: ");
-    Serial.println(currentMetroMillis);
-    Serial.println("Subtracted Millis: ");
-    Serial.println(currentMetroMillis-previousMetroMillis);
-    Serial.println();
-  }
+  DetermineStation();
+
   
   // ---------- USER CODE GOES HERE ----------
 }
