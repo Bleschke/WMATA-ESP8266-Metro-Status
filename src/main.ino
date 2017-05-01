@@ -394,10 +394,6 @@ void DetermineStation()
       if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
         previousMetroMillis = currentMetroMillis; //remember the time(millis)
         Serial.println("Checking Station A");
-        lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print(stationA);
-        delay(2000);
         MetroCheckA();
       }
       else {
@@ -418,10 +414,6 @@ void DetermineStation()
       if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
         previousMetroMillis = currentMetroMillis; //remember the time(millis)
         Serial.println("Checking Station B");
-        lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print(stationB);
-        delay(2000);
         MetroCheckB();
       }
       else {
@@ -442,10 +434,6 @@ void DetermineStation()
       if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
         previousMetroMillis = currentMetroMillis; //remember the time(millis)
         Serial.println("Checking Station C");
-        lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print(stationC);
-        delay(2000);
         MetroCheckC();
       }
       else {
@@ -466,10 +454,6 @@ void DetermineStation()
       if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
         previousMetroMillis = currentMetroMillis; //remember the time(millis)
         Serial.println("Checking Station D");
-        lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print(stationD);
-        delay(2000);
         MetroCheckD();
       }
       else {
@@ -507,10 +491,6 @@ void DetermineStation()
       if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
         previousMetroMillis = currentMetroMillis; //remember the time(millis)
         Serial.println("Checking Station A");
-        lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print(stationA);
-        delay(2000);
         MetroCheckA();
       }
       else {
@@ -531,10 +511,6 @@ void DetermineStation()
       if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
         previousMetroMillis = currentMetroMillis; //remember the time(millis)
         Serial.println("Checking Station B");
-        lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print(stationB);
-        delay(2000);
         MetroCheckB();
       }
       else {
@@ -555,10 +531,6 @@ void DetermineStation()
       if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
         previousMetroMillis = currentMetroMillis; //remember the time(millis)
         Serial.println("Checking Station C");
-        lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print(stationC);
-        delay(2000);
         MetroCheckC();
       }
       else {
@@ -579,10 +551,6 @@ void DetermineStation()
       if(currentMetroMillis - previousMetroMillis >= metroCheckInterval) {
         previousMetroMillis = currentMetroMillis; //remember the time(millis)
         Serial.println("Checking Station D");
-        lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print(stationD);
-        delay(2000);
         MetroCheckD();
       }
       else {
@@ -609,6 +577,12 @@ void DetermineStation()
 
 void MetroCheckA()
 {
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(stationA);
+  lcd.setCursor(0,1);
+  lcd.print("Checking for updates");
+  delay(2000);
   Serial.print("Metro A: connecting to ");
   Serial.println(WMATAServer);
   
@@ -672,6 +646,11 @@ void MetroCheckA()
 
 void MetroCheckB()
 {
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(stationB);
+  lcd.setCursor(0,1);
+  lcd.print("Checking for updates");
   Serial.print("Metro B: connecting to ");
   Serial.println(WMATAServer);
   
@@ -734,6 +713,11 @@ void MetroCheckB()
               
 void MetroCheckC()
 {
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(stationC);
+  lcd.setCursor(0,1);
+  lcd.print("Checking for updates");
   Serial.print("Metro C: connecting to ");
   Serial.println(WMATAServer);
   
@@ -796,6 +780,11 @@ void MetroCheckC()
               
 void MetroCheckD()
 {
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(stationD);
+  lcd.setCursor(0,1);
+  lcd.print("Checking for updates");
   Serial.print("Metro D: connecting to ");
   Serial.println(WMATAServer);
   
@@ -1010,6 +999,7 @@ void parseJSON(char json[300])
   Serial.println("RED LINE");
   colorWipe(pixels.Color(255 ,0, 0), 0); // set all neopixels to Red
   lcd.setCursor(0,1);
+  lcd.print("                    ");
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1053,6 +1043,7 @@ void parseJSON(char json[300])
   Serial.println("ORANGE LINE");
   colorWipe(pixels.Color(255, 165, 0), 0); // set all neopixels to Orange
   lcd.setCursor(0,1);
+  lcd.print("                    ");
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1097,6 +1088,7 @@ void parseJSON(char json[300])
   Serial.println("YELLOW LINE");
   colorWipe(pixels.Color(255, 255, 0), 0); // set all neopixels to Yellow
   lcd.setCursor(0,1);
+  lcd.print("                    ");
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1140,6 +1132,7 @@ void parseJSON(char json[300])
   Serial.println("GREEN LINE");
   colorWipe(pixels.Color(0, 128, 0), 0); // set all neopixels to Green
   lcd.setCursor(0,1);
+  lcd.print("                    ");
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1183,6 +1176,7 @@ void parseJSON(char json[300])
   Serial.println("BLUE LINE");
   colorWipe(pixels.Color(0, 0, 255), 0); // set all neopixels to Blue
   lcd.setCursor(0,1);
+  lcd.print("                    ");
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1226,6 +1220,7 @@ void parseJSON(char json[300])
   Serial.println("SILVER LINE");
   colorWipe(pixels.Color(192, 192, 192), 0); // set all neopixels to Silver
   lcd.setCursor(0,1);
+  lcd.print("                    ");
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1235,7 +1230,7 @@ void parseJSON(char json[300])
   lcd.print(Destination);
   lcd.print("  ");
   lcd.print(CMin);
-    
+
   if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
     matrix.print(Min);
