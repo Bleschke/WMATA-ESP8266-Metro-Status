@@ -1,7 +1,7 @@
 
 /* 
  * Brian Leschke
- * April 27, 2017
+ * May 1, 2017
  * Adafruit Huzzah WMATA ESP8266 Metro Status
  * An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 16x4 LCD screen (station updates).
  * Version 1.0
@@ -22,7 +22,7 @@
  * 4/27/2017 - Added JSON parsing, modified code and libraries, INITIAL RELEASE!
  * 4/28/2017 - Changed neopixel brightness, parsing port (parsing), and added neopixel sparkle code (arrival)
  * 4/30/2017 - fixed color notifications and modified button.
- * 5/1/2017  - added No passenger line.
+ * 5/1/2017  - added "No passenger", "brd", and "arr".
  * 
  * 
  *
