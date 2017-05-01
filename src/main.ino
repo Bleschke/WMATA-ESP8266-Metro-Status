@@ -982,9 +982,10 @@ void parseJSON(char json[300])
  String Line                  = root["Line"];
  const char* LocationCode     = root["LocationCode"];
  const char* LocationName     = root["LocationName"];
- const char* CMin             = root["Min"];
+ //const char* CMin           = root["Min"];
+ String CMin                  = root["Min"];
  float Min                    = root["Min"];
-
+ 
  Serial.println(Car);
  Serial.println(Destination);
  Serial.println(DestinationCode);
@@ -1001,6 +1002,7 @@ void parseJSON(char json[300])
   colorWipe(pixels.Color(255 ,0, 0), 0); // set all neopixels to Red
   lcd.setCursor(0,1);
   lcd.print("                    ");
+  lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1073,6 +1075,7 @@ void parseJSON(char json[300])
   colorWipe(pixels.Color(255, 165, 0), 0); // set all neopixels to Orange
   lcd.setCursor(0,1);
   lcd.print("                    ");
+  lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1110,7 +1113,7 @@ void parseJSON(char json[300])
       delay(20);
     }
     colorWipe(pixels.Color(255 ,165, 0), 0); // set all neopixels back to Orange
-  } 	 
+  }    
   else if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
     matrix.print(Min);
@@ -1146,6 +1149,7 @@ void parseJSON(char json[300])
   colorWipe(pixels.Color(255, 255, 0), 0); // set all neopixels to Yellow
   lcd.setCursor(0,1);
   lcd.print("                    ");
+  lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1183,7 +1187,7 @@ void parseJSON(char json[300])
       delay(20);
     }
     colorWipe(pixels.Color(255 ,225, 0), 0); // set all neopixels back to Yellow
-  } 	 
+  }    
   else if (Min > 1.00 && Min <= 3.00)  // If train is arriving 
   {  
     matrix.print(Min);
@@ -1218,6 +1222,7 @@ void parseJSON(char json[300])
   colorWipe(pixels.Color(0, 128, 0), 0); // set all neopixels to Green
   lcd.setCursor(0,1);
   lcd.print("                    ");
+  lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1255,7 +1260,7 @@ void parseJSON(char json[300])
       delay(20);
     }
     colorWipe(pixels.Color(0 ,128, 0), 0); // set all neopixels back to Green
-  } 	 
+  }    
   else if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
     matrix.print(Min);
@@ -1290,6 +1295,7 @@ void parseJSON(char json[300])
   colorWipe(pixels.Color(0, 0, 255), 0); // set all neopixels to Blue
   lcd.setCursor(0,1);
   lcd.print("                    ");
+  lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1362,6 +1368,7 @@ void parseJSON(char json[300])
   colorWipe(pixels.Color(192, 192, 192), 0); // set all neopixels to Silver
   lcd.setCursor(0,1);
   lcd.print("                    ");
+  lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1399,7 +1406,7 @@ void parseJSON(char json[300])
       delay(20);
     }
     colorWipe(pixels.Color(192, 192, 192), 0); // set all neopixels back to Silver
-  }	 
+  }  
   else if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
     matrix.print(Min);
@@ -1437,6 +1444,7 @@ void parseJSON(char json[300])
   lcd.print("Out of Service");
   lcd.setCursor(0,1);
   lcd.print("                    ");
+  lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1462,6 +1470,7 @@ void parseJSON(char json[300])
   lcd.print("No Passenger");
   lcd.setCursor(0,1);
   lcd.print("                    ");
+  lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1489,6 +1498,7 @@ void parseJSON(char json[300])
   lcd.print("Line Unknown");
   lcd.setCursor(0,1);
   lcd.print("                    ");
+  lcd.setCursor(0,1);
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
