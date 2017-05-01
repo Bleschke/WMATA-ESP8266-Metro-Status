@@ -60,7 +60,9 @@
 
 // Neopixel Setup
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
-int waitTime = 10;
+int waitTime     = 10;
+int sparkleCount = 1500;
+int fadeCount    = 25;
 
 // ** 7-segment LED setup **
 Adafruit_7segment matrix = Adafruit_7segment();
@@ -222,7 +224,7 @@ void setup()
   lcd.begin(20,4);
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("WMATA Status");
+  lcd.print("WMATA Metro Status");
   lcd.setCursor(0,1);
   lcd.print("Version 1.0");
   lcd.setCursor(0,2);
@@ -236,7 +238,7 @@ void setup()
   pinMode(changeButton, INPUT_PULLUP);
   
   
-  pixels.setPixelColor(0, pixels.Color(0,0,0)); // OFF
+  colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
   pixels.show(); // This sends the updated pixel color to the hardware.
   pixels.setBrightness(128);
   rainbowCycle(10);  // Loading screen
@@ -315,6 +317,7 @@ void setup()
   while (WiFi.status() != WL_CONNECTED && millis() - startTime < 10000)
   {
     Serial.write('.');
+    lcd.print(".");  
     //Serial.print(WiFi.status());
     delay(500);
   }
@@ -1009,13 +1012,35 @@ void parseJSON(char json[300])
   lcd.print(Destination);
   lcd.print("  ");
   lcd.print(CMin);
+  
+  if (CMin == "ARR")   // If train is boarding
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
     
-  if (Min > 1.00 && Min <= 3.00)  // If train is arriving
+    for(int i=0; i< sparkleCount; i++) {
+      Sparkle(255 ,0, 0, waitTime);      // Sparkle Red
+      delay(20);
+    }
+    colorWipe(pixels.Color(255 ,0, 0), 0); // set all neopixels back to Red
+  }
+  else if (CMin == "BRD")   // If train is boarding
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+    
+    for(int i=0; i< sparkleCount; i++) {
+      Sparkle(255 ,0, 0, waitTime);      // Sparkle Red
+      delay(20);
+    }
+    colorWipe(pixels.Color(255 ,0, 0), 0); // set all neopixels back to Red
+  }
+  else if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   { 
     matrix.print(Min);
     matrix.writeDisplay();
     
-    for(int i=0; i< 25; i++) {
+    for(int i=0; i< fadeCount; i++) {
       FadeInOut(255 ,0, 0, waitTime);    // Fade in and out Red
       delay(500);
     }
@@ -1026,7 +1051,7 @@ void parseJSON(char json[300])
     matrix.print(Min);
     matrix.writeDisplay();
     
-    for(int i=0; i< 1500; i++) {
+    for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,0, 0, waitTime);      // Sparkle Red
       delay(20);
     }
@@ -1053,13 +1078,35 @@ void parseJSON(char json[300])
   lcd.print(Destination);
   lcd.print("  ");
   lcd.print(CMin);
+
+  if (CMin == "ARR")   // If train is boarding
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
     
-  if (Min > 1.00 && Min <= 3.00)  // If train is arriving
+    for(int i=0; i< sparkleCount; i++) {
+      Sparkle(255 ,165, 0, waitTime);      // Sparkle Orange
+      delay(20);
+    }
+    colorWipe(pixels.Color(255 ,165, 0), 0); // set all neopixels back to Orange
+  }
+  else if (CMin == "BRD")   // If train is boarding
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+    
+    for(int i=0; i< sparkleCount; i++) {
+      Sparkle(255 ,165, 0, waitTime);      // Sparkle Orange
+      delay(20);
+    }
+    colorWipe(pixels.Color(255 ,165, 0), 0); // set all neopixels back to Orange
+  } 	 
+  else if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
     matrix.print(Min);
     matrix.writeDisplay();
 
-    for(int i=0; i< 25; i++) {
+    for(int i=0; i< fadeCount; i++) {
       FadeInOut(255 ,165, 0, waitTime);    // Fade in and out Orange
       delay(500);
     }
@@ -1071,7 +1118,7 @@ void parseJSON(char json[300])
     matrix.print(Min);
     matrix.writeDisplay();
 
-    for(int i=0; i< 1500; i++) {
+    for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,165, 0, waitTime);      // Sparkle Orange
       delay(20);
     }
@@ -1099,12 +1146,34 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(CMin);
     
-  if (Min > 1.00 && Min <= 3.00)  // If train is arriving 
+  if (CMin == "ARR")   // If train is boarding
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+    
+    for(int i=0; i< sparkleCount; i++) {
+      Sparkle(255 ,225, 0, waitTime);      // Sparkle Yellow
+      delay(20);
+    }
+    colorWipe(pixels.Color(255 ,225, 0), 0); // set all neopixels back to Yelloe
+  }
+  else if (CMin == "BRD")   // If train is boarding
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+    
+    for(int i=0; i< sparkleCount; i++) {
+      Sparkle(255 ,225, 0, waitTime);      // Sparkle Yellow
+      delay(20);
+    }
+    colorWipe(pixels.Color(255 ,225, 0), 0); // set all neopixels back to Yellow
+  } 	 
+  else if (Min > 1.00 && Min <= 3.00)  // If train is arriving 
   {  
     matrix.print(Min);
     matrix.writeDisplay();
 
-    for(int i=0; i< 25; i++) {
+    for(int i=0; i< fadeCount; i++) {
       FadeInOut(255 ,255, 0, waitTime);    // Fade in and out Yellow
       delay(500);
     }
@@ -1115,7 +1184,7 @@ void parseJSON(char json[300])
     matrix.print(Min);
     matrix.writeDisplay();
 
-    for(int i=0; i< 1500; i++) {
+    for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,255, 0, waitTime);      // Sparkle Yellow
       delay(20);
     }
@@ -1143,12 +1212,34 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(CMin);
     
-  if (Min > 1.00 && Min <= 3.00)  // If train is arriving
+  if (CMin == "ARR")   // If train is boarding
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+    
+    for(int i=0; i< sparkleCount; i++) {
+      Sparkle(0 ,128, 0, waitTime);      // Sparkle Green
+      delay(20);
+    }
+    colorWipe(pixels.Color(0 ,128, 0), 0); // set all neopixels back to Green
+  }
+  else if (CMin == "BRD")   // If train is boarding
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+    
+    for(int i=0; i< sparkleCount; i++) {
+      Sparkle(0 ,128, 0, waitTime);      // Sparkle Green
+      delay(20);
+    }
+    colorWipe(pixels.Color(0 ,128, 0), 0); // set all neopixels back to Green
+  } 	 
+  else if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
     matrix.print(Min);
     matrix.writeDisplay();
 
-    for(int i=0; i< 25; i++) {
+    for(int i=0; i< fadeCount; i++) {
       FadeInOut(0 ,128, 0, waitTime);    // Fade in and out Green
       delay(500);
     }
@@ -1159,7 +1250,7 @@ void parseJSON(char json[300])
     matrix.print(Min);
     matrix.writeDisplay();
 
-    for(int i=0; i< 1500; i++) {
+    for(int i=0; i< sparkleCount; i++) {
       Sparkle(0 ,128, 0, waitTime);      // Sparkle Green
       delay(20);
     }
@@ -1187,12 +1278,34 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(CMin);
     
-  if (Min > 1.00 && Min <= 3.00)  // If train is arriving
+  if (CMin == "ARR")   // If train is boarding
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+    
+    for(int i=0; i< sparkleCount; i++) {
+      Sparkle(0 ,0, 255, waitTime);      // Sparkle Blue
+      delay(20);
+    }
+    colorWipe(pixels.Color(0 ,0, 255), 0); // set all neopixels back to Blue
+  }
+  else if (CMin == "BRD")   // If train is boarding
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+    
+    for(int i=0; i< sparkleCount; i++) {
+      Sparkle(0 ,0, 255, waitTime);      // Sparkle Blue
+      delay(20);
+    }
+    colorWipe(pixels.Color(0 ,0, 255), 0); // set all neopixels back to Blue
+  } 
+  else if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
     matrix.print(Min);
     matrix.writeDisplay();
 
-    for(int i=0; i< 25; i++) {
+    for(int i=0; i< fadeCount; i++) {
       FadeInOut(0 ,0, 255, waitTime);    // Fade in and out Blue
       delay(500);
     }
@@ -1203,7 +1316,7 @@ void parseJSON(char json[300])
     matrix.print(Min);
     matrix.writeDisplay();
 
-    for(int i=0; i< 1500; i++) {
+    for(int i=0; i< sparkleCount; i++) {
       Sparkle(0 ,0, 255, waitTime);      // Sparkle Blue
       delay(20);
     }
@@ -1231,12 +1344,34 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(CMin);
 
-  if (Min > 1.00 && Min <= 3.00)  // If train is arriving
+  if (CMin == "ARR")   // If train is boarding
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+    
+    for(int i=0; i< sparkleCount; i++) {
+      Sparkle(255 ,0, 0, waitTime);      // Sparkle Red
+      delay(20);
+    }
+    colorWipe(pixels.Color(192, 192, 192), 0); // set all neopixels back to Silver
+  }
+  else if (CMin == "BRD")   // If train is boarding
+  {
+    matrix.print(Min);
+    matrix.writeDisplay();
+    
+    for(int i=0; i< sparkleCount; i++) {
+      Sparkle(192, 192, 192, waitTime);      // Sparkle Silver
+      delay(20);
+    }
+    colorWipe(pixels.Color(192, 192, 192), 0); // set all neopixels back to Silver
+  }	 
+  else if (Min > 1.00 && Min <= 3.00)  // If train is arriving
   {  
     matrix.print(Min);
     matrix.writeDisplay();
 
-    for(int i=0; i< 25; i++) {
+    for(int i=0; i< fadeCount; i++) {
       FadeInOut(192 ,192, 192, waitTime);    // Fade in and out Silver
       delay(500);
     }
@@ -1247,7 +1382,7 @@ void parseJSON(char json[300])
     matrix.print(Min);
     matrix.writeDisplay();
 
-    for(int i=0; i< 1500; i++) {
+    for(int i=0; i< sparkleCount; i++) {
       Sparkle(192 ,192, 192, waitTime);      // Sparkle Silver
       delay(20);
     }
@@ -1262,11 +1397,12 @@ void parseJSON(char json[300])
  else if (Line == "--")
  {
   Serial.println("LINE/TRAIN OUT OF SERVICE");
-  colorWipe(pixels.Color(212, 0, 212), 0); // set all neopixels to Purple
+  colorWipe(pixels.Color(255, 0, 255), 0); // set all neopixels to Magenta
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Out of Service");
   lcd.setCursor(0,1);
+  lcd.print("                    ");
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1286,11 +1422,12 @@ void parseJSON(char json[300])
  else if (Line == "No")
  {
   Serial.println("No Passenger");
-  colorWipe(pixels.Color(212, 0, 212), 0); // set all neopixels to Purple
+  colorWipe(pixels.Color(255, 0, 255), 0); // set all neopixels to Magenta
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("No Passenger");
   lcd.setCursor(0,1);
+  lcd.print("                    ");
   lcd.print("LN  CAR  DEST  MIN");
   lcd.setCursor(0,2);
   lcd.print(Line);
@@ -1302,30 +1439,31 @@ void parseJSON(char json[300])
   lcd.print(CMin);
 
   matrix.clear();
-  matrix.writeDigitRaw(0, B01010100);  // 7 Segment LED "n"
-  matrix.writeDigitRaw(1, B01011100);  // 7 Segment LED "o"
+  matrix.writeDigitRaw(1, B01010100);  // 7 Segment LED "n"
+  matrix.writeDigitRaw(3, B01011100);  // 7 Segment LED "o"
   matrix.writeDisplay();
  }
  else
  {
   Serial.println("LINE UNKNOWN");
-  colorWipe(pixels.Color(128, 0, 128), 0); // set all neopixels to Purple
+  colorWipe(pixels.Color(255, 0, 255), 0); // set all neopixels to Magenta
   matrix.print(Min);
   matrix.writeDisplay();
   
-	lcd.clear();
-	lcd.setCursor(0,0);
-	lcd.print("Line Unknown");
-	lcd.setCursor(0,1);
-	lcd.print("LN  CAR  DEST  MIN");
-	lcd.setCursor(0,2);
-	lcd.print(Line);
-	lcd.print("  ");
-	lcd.print(Car);
-	lcd.print("  ");
-	lcd.print(Destination);
-	lcd.print("  ");
-	lcd.print(CMin);
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Line Unknown");
+  lcd.setCursor(0,1);
+  lcd.print("                    ");
+  lcd.print("LN  CAR  DEST  MIN");
+  lcd.setCursor(0,2);
+  lcd.print(Line);
+  lcd.print("  ");
+  lcd.print(Car);
+  lcd.print("  ");
+  lcd.print(Destination);
+  lcd.print("  ");
+  lcd.print(CMin);
  }
 }
 
@@ -1335,8 +1473,6 @@ void loop()
 {
   // Handle OTA server.
   ArduinoOTA.handle();
-  yield();
-  
 
   // ---------- USER CODE GOES HERE ----------
 
@@ -1345,7 +1481,7 @@ void loop()
 
   // ** Metro Check **
   DetermineStation();
+  yield();
 
-  
   // ---------- USER CODE GOES HERE ----------
 }
