@@ -100,7 +100,6 @@ unsigned long previousMetroMillis    = 0;           // Do not change.
 int changeButton                     = 14;          // Do not change.
 int counter                          = 0;           // Do not change.
 
-
 // ** JSON Parser Information
 const int buffer_size = 300;       // length of json buffer. Do not change.
 const int buffer=300;              // Do not change.
