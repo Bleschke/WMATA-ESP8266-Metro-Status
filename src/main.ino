@@ -1089,7 +1089,7 @@ void parseJSON(char json[300])
   if (CMin == "ARR")   // If train is arriving
   {
     matrix.clear();
-    matrix.writeDigitRaw(0, B00100111); // 7 Segment LED "a"
+    matrix.writeDigitRaw(0, B01110111); // 7 Segment LED "a" 
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
@@ -1163,7 +1163,7 @@ void parseJSON(char json[300])
   if (CMin == "ARR")   // If train is arriving
   {
     matrix.clear();
-    matrix.writeDigitRaw(0, B00100111); // 7 Segment LED "a"
+    matrix.writeDigitRaw(0, B01110111); // 7 Segment LED "a"
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
@@ -1236,7 +1236,7 @@ void parseJSON(char json[300])
   if (CMin == "ARR")   // If train is arriving
   {
     matrix.clear();
-    matrix.writeDigitRaw(0, B00100111); // 7 Segment LED "a"
+    matrix.writeDigitRaw(0, B01110111); // 7 Segment LED "a"
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
@@ -1309,7 +1309,7 @@ void parseJSON(char json[300])
   if (CMin == "ARR")   // If train is arriving
   {
     matrix.clear();
-    matrix.writeDigitRaw(0, B00100111); // 7 Segment LED "a"
+    matrix.writeDigitRaw(0, B01110111); // 7 Segment LED "a"
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
@@ -1382,7 +1382,7 @@ void parseJSON(char json[300])
   if (CMin == "ARR")   // If train is arriving
   {
     matrix.clear();
-    matrix.writeDigitRaw(0, B00100111); // 7 Segment LED "a"
+    matrix.writeDigitRaw(0, B01110111); // 7 Segment LED "a"
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
