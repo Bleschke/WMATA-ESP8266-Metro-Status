@@ -55,14 +55,14 @@
 
 // ** mDNS and OTA Constants **
 #define HOSTNAME "ESP8266-OTA-"     // Hostename. The setup function adds the Chip ID at the end.
+
+// ** Neopixel Setup **
 #define PIN            0            // Pin used for Neopixel communication
 #define NUMPIXELS      24           // Number of Neopixels connected to Arduino
-
-// Neopixel Setup
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
-int waitTime     = 10;
-int sparkleCount = 1500;
-int fadeCount    = 25;
+int waitTime     = 10;     // Do not change.
+int sparkleCount = 1500;   // Number of pixel sparkles
+int fadeCount    = 25;     // Number of fade in/out
 
 // ** 7-segment LED setup **
 Adafruit_7segment matrix = Adafruit_7segment();
@@ -79,7 +79,7 @@ const char* ap_default_psk  = "esp8266";   // Default PSK.
 // ** WMATA Information **
 // API Calling Usage: https://api.wmata.com/StationPrediction.svc/json/GetPrediction/<STATIONCODE>?api_key=<API-KEY>
 
-#define      WMATAServer       "api.wmata.com" // name address for WMATA (using DNS)
+#define      WMATAServer       "api.wmata.com"      // name address for WMATA (using DNS)
 const String myKey           = "API_KEY";           // See: https://developer.wmata.com/ (change here with your Primary/Secondary API KEY)
 const String stationCodeA    = "STATION_CODE";      // Metro station code 1
 const String stationCodeB    = "STATION_CODE";      // Metro station code 2
@@ -93,14 +93,12 @@ const String stationD        = "STATION_NAME";      // Metro station name. ex. S
   
 long metroCheckInterval              = 60000;       // DO NOT Exceed 50000 API calls a day. Time (milliseconds) until next metro train check.
 unsigned long previousMetroMillis    = 0;           // Do not change.
-int changeButton                     = 2;          // Do not change.
+int changeButton                     = 2;           // Do not change. Pin 2 is InputPullUp on Huzzah
 int counter                          = 0;           // Do not change.
 
-
 // ** JSON Parser Information
-const int buffer_size = 300;                        // length of json buffer
+const int buffer_size = 300;                        // Do not change. Length of json buffer
 const int buffer=300;                               // Do not change.
-
 int passNum = 1;                                    // Do not change.
 
 char* metroConds[]={                                // Do not change.
