@@ -36,8 +36,8 @@ You will need:
 2. Neopixel Ring (http://adafru.it/1586)
 3. 7-Segment Alphanumeric LED (http://adafru.it/878)
 4. Serial 20x4 LCD (ebay)
-5. PlatformIO / Arduino programming software
-6. Operating system that supports PlatformIO
+5. Arduino programming software
+6. Python installed on your operating system (used for OTA updates).
 7. FTDI cable (https://www.sparkfun.com/products/9717)
 8. WMATA API (http://developer.wmata.com)
 
