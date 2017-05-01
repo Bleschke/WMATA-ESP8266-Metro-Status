@@ -1,4 +1,3 @@
-
 /* 
  * Brian Leschke
  * May 1, 2017
@@ -60,9 +59,9 @@
 #define PIN            0            // Pin used for Neopixel communication
 #define NUMPIXELS      24           // Number of Neopixels connected to Arduino
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
-int waitTime     = 10;     // Do not change.
-int sparkleCount = 1500;   // Number of pixel sparkles
-int fadeCount    = 25;     // Number of fade in/out
+int waitTime     = 10;    // Do not change.
+int sparkleCount = 700;   // Number of pixel sparkles.
+int fadeCount    = 11;    // Number of fade in/out
 
 // ** 7-segment LED setup **
 Adafruit_7segment matrix = Adafruit_7segment();
@@ -91,7 +90,7 @@ const String stationB        = "STATION_NAME";      // Metro station name. ex. S
 const String stationC        = "STATION_NAME";      // Metro station name. ex. Shady Grove
 const String stationD        = "STATION_NAME";      // Metro station name. ex. Shady Grove 
   
-long metroCheckInterval              = 60000;       // DO NOT Exceed 50000 API calls a day. Time (milliseconds) until next metro train check.
+long metroCheckInterval              = 30000;       // DO NOT Exceed 50000 API calls a day. Time (milliseconds) until next metro train check.
 unsigned long previousMetroMillis    = 0;           // Do not change.
 int changeButton                     = 2;           // Do not change. Pin 2 is InputPullUp on Huzzah
 int counter                          = 0;           // Do not change.
@@ -398,7 +397,7 @@ void DetermineStation()
         MetroCheckA();
       }
       else {
-        Serial.println("Station A: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Station A: Bypassing Metro Check. Less than 30 seconds since last check.");        
         Serial.println("Previous Millis: ");
         Serial.println(previousMetroMillis);
         Serial.println("Current Millis: ");
@@ -418,7 +417,7 @@ void DetermineStation()
         MetroCheckB();
       }
       else {
-        Serial.println("Station B: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Station B: Bypassing Metro Check. Less than 30 seconds since last check.");        
         Serial.println("Previous Millis: ");
         Serial.println(previousMetroMillis);
         Serial.println("Current Millis: ");
@@ -438,7 +437,7 @@ void DetermineStation()
         MetroCheckC();
       }
       else {
-        Serial.println("Station C: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Station C: Bypassing Metro Check. Less than 30 seconds since last check.");        
         Serial.println("Previous Millis: ");
         Serial.println(previousMetroMillis);
         Serial.println("Current Millis: ");
@@ -458,7 +457,7 @@ void DetermineStation()
         MetroCheckD();
       }
       else {
-        Serial.println("Station D: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Station D: Bypassing Metro Check. Less than 30 seconds since last check.");        
         Serial.println("Previous Millis: ");
         Serial.println(previousMetroMillis);
         Serial.println("Current Millis: ");
@@ -495,7 +494,7 @@ void DetermineStation()
         MetroCheckA();
       }
       else {
-        Serial.println("Station A: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Station A: Bypassing Metro Check. Less than 30 seconds since last check.");        
         Serial.println("Previous Millis: ");
         Serial.println(previousMetroMillis);
         Serial.println("Current Millis: ");
@@ -515,7 +514,7 @@ void DetermineStation()
         MetroCheckB();
       }
       else {
-        Serial.println("Station B: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Station B: Bypassing Metro Check. Less than 30 seconds since last check.");        
         Serial.println("Previous Millis: ");
         Serial.println(previousMetroMillis);
         Serial.println("Current Millis: ");
@@ -535,7 +534,7 @@ void DetermineStation()
         MetroCheckC();
       }
       else {
-        Serial.println("Station C: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Station C: Bypassing Metro Check. Less than 30 seconds since last check.");        
         Serial.println("Previous Millis: ");
         Serial.println(previousMetroMillis);
         Serial.println("Current Millis: ");
@@ -555,7 +554,7 @@ void DetermineStation()
         MetroCheckD();
       }
       else {
-        Serial.println("Station D: Bypassing Metro Check. Less than 1 minute since last check.");        
+        Serial.println("Station D: Bypassing Metro Check. Less than 30 seconds since last check.");        
         Serial.println("Previous Millis: ");
         Serial.println(previousMetroMillis);
         Serial.println("Current Millis: ");
@@ -1016,7 +1015,7 @@ void parseJSON(char json[300])
   if (CMin == "ARR")   // If train is arriving
   {
     matrix.clear();
-    matrix.writeDigitRaw(0, B00100111); // 7 Segment LED "a"
+    matrix.writeDigitRaw(0, B01110111); // 7 Segment LED "a"
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
@@ -1089,7 +1088,7 @@ void parseJSON(char json[300])
   if (CMin == "ARR")   // If train is arriving
   {
     matrix.clear();
-    matrix.writeDigitRaw(0, B01110111); // 7 Segment LED "a" 
+    matrix.writeDigitRaw(0, B01110111); // 7 Segment LED "a"
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
