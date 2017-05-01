@@ -1013,9 +1013,12 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(CMin);
   
-  if (CMin == "ARR")   // If train is boarding
+  if (CMin == "ARR")   // If train is arriving
   {
-    matrix.print(Min);
+    matrix.clear();
+    matrix.writeDigitRaw(0, B00100111); // 7 Segment LED "a"
+    matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
+    matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
     
     for(int i=0; i< sparkleCount; i++) {
@@ -1026,7 +1029,10 @@ void parseJSON(char json[300])
   }
   else if (CMin == "BRD")   // If train is boarding
   {
-    matrix.print(Min);
+    matrix.clear();
+    matrix.writeDigitRaw(0, B01111100); // 7 Segment LED "b"
+    matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
+    matrix.writeDigitRaw(3, B01011110); // 7 Segment LED "d" 
     matrix.writeDisplay();
     
     for(int i=0; i< sparkleCount; i++) {
@@ -1079,9 +1085,12 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(CMin);
 
-  if (CMin == "ARR")   // If train is boarding
+  if (CMin == "ARR")   // If train is arriving
   {
-    matrix.print(Min);
+    matrix.clear();
+    matrix.writeDigitRaw(0, B00100111); // 7 Segment LED "a"
+    matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
+    matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
     
     for(int i=0; i< sparkleCount; i++) {
@@ -1092,7 +1101,10 @@ void parseJSON(char json[300])
   }
   else if (CMin == "BRD")   // If train is boarding
   {
-    matrix.print(Min);
+    matrix.clear();
+    matrix.writeDigitRaw(0, B01111100); // 7 Segment LED "b"
+    matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
+    matrix.writeDigitRaw(3, B01011110); // 7 Segment LED "d" 
     matrix.writeDisplay();
     
     for(int i=0; i< sparkleCount; i++) {
@@ -1146,9 +1158,12 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(CMin);
     
-  if (CMin == "ARR")   // If train is boarding
+  if (CMin == "ARR")   // If train is arriving
   {
-    matrix.print(Min);
+    matrix.clear();
+    matrix.writeDigitRaw(0, B00100111); // 7 Segment LED "a"
+    matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
+    matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
     
     for(int i=0; i< sparkleCount; i++) {
@@ -1159,7 +1174,10 @@ void parseJSON(char json[300])
   }
   else if (CMin == "BRD")   // If train is boarding
   {
-    matrix.print(Min);
+    matrix.clear();
+    matrix.writeDigitRaw(0, B01111100); // 7 Segment LED "b"
+    matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
+    matrix.writeDigitRaw(3, B01011110); // 7 Segment LED "d" 
     matrix.writeDisplay();
     
     for(int i=0; i< sparkleCount; i++) {
@@ -1212,9 +1230,12 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(CMin);
     
-  if (CMin == "ARR")   // If train is boarding
+  if (CMin == "ARR")   // If train is arriving
   {
-    matrix.print(Min);
+    matrix.clear();
+    matrix.writeDigitRaw(0, B00100111); // 7 Segment LED "a"
+    matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
+    matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
     
     for(int i=0; i< sparkleCount; i++) {
@@ -1225,7 +1246,10 @@ void parseJSON(char json[300])
   }
   else if (CMin == "BRD")   // If train is boarding
   {
-    matrix.print(Min);
+    matrix.clear();
+    matrix.writeDigitRaw(0, B01111100); // 7 Segment LED "b"
+    matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
+    matrix.writeDigitRaw(3, B01011110); // 7 Segment LED "d" 
     matrix.writeDisplay();
     
     for(int i=0; i< sparkleCount; i++) {
@@ -1278,9 +1302,12 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(CMin);
     
-  if (CMin == "ARR")   // If train is boarding
+  if (CMin == "ARR")   // If train is arriving
   {
-    matrix.print(Min);
+    matrix.clear();
+    matrix.writeDigitRaw(0, B00100111); // 7 Segment LED "a"
+    matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
+    matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
     
     for(int i=0; i< sparkleCount; i++) {
@@ -1291,7 +1318,10 @@ void parseJSON(char json[300])
   }
   else if (CMin == "BRD")   // If train is boarding
   {
-    matrix.print(Min);
+    matrix.clear();
+    matrix.writeDigitRaw(0, B01111100); // 7 Segment LED "b"
+    matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
+    matrix.writeDigitRaw(3, B01011110); // 7 Segment LED "d" 
     matrix.writeDisplay();
     
     for(int i=0; i< sparkleCount; i++) {
@@ -1344,9 +1374,12 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(CMin);
 
-  if (CMin == "ARR")   // If train is boarding
+  if (CMin == "ARR")   // If train is arriving
   {
-    matrix.print(Min);
+    matrix.clear();
+    matrix.writeDigitRaw(0, B00100111); // 7 Segment LED "a"
+    matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
+    matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
     
     for(int i=0; i< sparkleCount; i++) {
@@ -1357,7 +1390,10 @@ void parseJSON(char json[300])
   }
   else if (CMin == "BRD")   // If train is boarding
   {
-    matrix.print(Min);
+    matrix.clear();
+    matrix.writeDigitRaw(0, B01111100); // 7 Segment LED "b"
+    matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
+    matrix.writeDigitRaw(3, B01011110); // 7 Segment LED "d" 
     matrix.writeDisplay();
     
     for(int i=0; i< sparkleCount; i++) {
