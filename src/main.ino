@@ -1,3 +1,4 @@
+
 /* 
  * Brian Leschke
  * May 1, 2017
@@ -21,7 +22,7 @@
  * 4/27/2017 - Added JSON parsing, modified code and libraries, INITIAL RELEASE!
  * 4/28/2017 - Changed neopixel brightness, parsing port (parsing), and added neopixel sparkle code (arrival)
  * 4/30/2017 - fixed color notifications and modified button.
- * 5/1/2017  - added "No passenger", "brd", and "arr".
+ * 5/1/2017  - added "No passenger", "brd", "arr" and simplified the wifi and OTA code.
  * 
  * 
  *
@@ -71,9 +72,9 @@ Adafruit_7segment matrix = Adafruit_7segment();
 #define LED_ADDR (0x27)      // might need to be 0x3F, if 0x27 doesn't work
 LiquidCrystal_I2C lcd(LED_ADDR, 2, 1, 0, 4, 5, 6, 7, BACKLIGHT_PIN, POSITIVE);  // Set the LCD I2C address
 
-// ** Default WiFi connection Information **
-const char* ap_default_ssid = "esp8266";   // Default SSID.
-const char* ap_default_psk  = "esp8266";   // Default PSK.
+// ** WiFi connection and OTA Information **
+const char*     ssid = "WIFI_SSID";   // Default SSID.
+const char* password = "WIFI_PASSWORD";   // Default PSK.
 
 // ** WMATA Information **
 // API Calling Usage: https://api.wmata.com/StationPrediction.svc/json/GetPrediction/<STATIONCODE>?api_key=<API-KEY>
@@ -130,86 +131,6 @@ String TimeDate = "";
 
 
 // ---------- OTA CONFIGURATION - DO NOT MODIFY ----------
-
-bool loadConfig(String *ssid, String *pass)
-{
-  // open file for reading.
-  File configFile = SPIFFS.open("/cl_conf.txt", "r");
-  if (!configFile)
-  {
-    Serial.println("Failed to open cl_conf.txt.");
-
-    return false;
-  }
-
-  // Read content from config file.
-  String content = configFile.readString();
-  configFile.close();
-  
-  content.trim();
-
-  // Check if ther is a second line available.
-  int8_t pos = content.indexOf("\r\n");
-  uint8_t le = 2;
-  // check for linux and mac line ending.
-  if (pos == -1)
-  {
-    le = 1;
-    pos = content.indexOf("\n");
-    if (pos == -1)
-    {
-      pos = content.indexOf("\r");
-    }
-  }
-
-  // If there is no second line: Some information is missing.
-  if (pos == -1)
-  {
-    Serial.println("Invalid content.");
-    Serial.println(content);
-
-    return false;
-  }
-
-  // Store SSID and PSK into string vars.
-  *ssid = content.substring(0, pos);
-  *pass = content.substring(pos + le);
-
-  ssid->trim();
-  pass->trim();
-
-#ifdef SERIAL_VERBOSE
-  Serial.println("----- file content -----");
-  Serial.println(content);
-  Serial.println("----- file content -----");
-  Serial.println("ssid: " + *ssid);
-  Serial.println("psk:  " + *pass);
-#endif
-
-  return true;
-} // loadConfig
-
-bool saveConfig(String *ssid, String *pass)
-{
-  // Open config file for writing.
-  File configFile = SPIFFS.open("/cl_conf.txt", "w");
-  if (!configFile)
-  {
-    Serial.println("Failed to open cl_conf.txt for writing");
-
-    return false;
-  }
-
-  // Save SSID and PSK.
-  configFile.println(*ssid);
-  configFile.println(*pass);
-
-  configFile.close();
-  
-  return true;
-} // saveConfig
-
-
 void setup()
 {
   delay(2000);
@@ -227,142 +148,97 @@ void setup()
   lcd.setCursor(0,2);
   lcd.print("Brian Leschke");  
   delay(3000);
-  String station_ssid = ""; // Do Not Change
-  String station_psk = "";  // Do Not Change
 
   Serial.begin(115200);
+  Serial.println("Booting");
   pixels.begin(); // This initializes the NeoPixel library.
   pinMode(changeButton, INPUT_PULLUP);
-  
   
   colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
   pixels.show(); // This sends the updated pixel color to the hardware.
   pixels.setBrightness(128);
   rainbowCycle(10);  // Loading screen
 
-  Serial.println("\r\n");
-  Serial.print("Chip ID: 0x");
-  Serial.println(ESP.getChipId(), HEX);
-
-  // Set Hostname.
-  String hostname(HOSTNAME);
-  hostname += String(ESP.getChipId(), HEX);
-  WiFi.hostname(hostname);
-
-  // Print hostname.
-  Serial.println("Hostname: " + hostname);
-  //Serial.println(WiFi.hostname());
-
-
-  // Initialize file system.
-  if (!SPIFFS.begin())
-  {
-    Serial.println("Failed to mount file system");
-    lcd.clear();
-    lcd.setCursor(0,1);
-    lcd.print("FAIL: Filesystem");
-    return;
-  }
-
-  // Load wifi connection information.
-  if (! loadConfig(&station_ssid, &station_psk))
-  {
-    station_ssid = "";
-    station_psk = "";
-
-    Serial.println("No WiFi connection information available.");
-  }
-
-  // Check WiFi connection
-  // ... check mode
-  if (WiFi.getMode() != WIFI_STA)
-  {
-    WiFi.mode(WIFI_STA);
-    delay(10);
-  }
-
-  // ... Compare file config with sdk config.
-  if (WiFi.SSID() != station_ssid || WiFi.psk() != station_psk)
-  {
-    Serial.println("WiFi config changed.");
-
-    // ... Try to connect to WiFi station.
-    WiFi.begin(station_ssid.c_str(), station_psk.c_str());
-
-    // ... Print new SSID
-    Serial.print("new SSID: ");
-    Serial.println(WiFi.SSID());
+  WiFi.begin(ssid, password);
+  while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+    Serial.println("Connection Failed! Rebooting...");
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print("SSID: " + WiFi.SSID());
-
-    // ... Uncomment this for debugging output.
-    //WiFi.printDiag(Serial);
-  }
-  else
-  {
-    // ... Begin with sdk config.
-    WiFi.begin();
+    lcd.print("Wifi Fail: Rebooting");
+    
+    delay(5000);
+    ESP.restart();
   }
 
-  Serial.println("Wait for WiFi connection.");
-  lcd.setCursor(0,1);
-  lcd.print("WiFi: Connecting");
+  // Port defaults to 8266
+  //ArduinoOTA.setPort(8266);
 
-  // ... Give ESP 10 seconds to connect to station.
-  unsigned long startTime = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - startTime < 10000)
-  {
-    Serial.write('.');
-    lcd.print(".");  
-    //Serial.print(WiFi.status());
-    delay(500);
-  }
-  Serial.println();
-  //timeClient.begin(); // Start the time client
+  // Hostname defaults to esp8266-[ChipID]
+  // ArduinoOTA.setHostname("myesp8266");
 
-  // Check connection
-  if(WiFi.status() == WL_CONNECTED)
-  {
-    // ... print IP Address
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
+  // No authentication by default
+  //ArduinoOTA.setPassword((const char *)1234);
+
+  ArduinoOTA.onStart([]() {
+    Serial.println("Start");
     lcd.clear();
     lcd.setCursor(0,1);
-    lcd.print("WiFi: Connected");
+    lcd.print("OTA Update Initiated");
+  });
+  ArduinoOTA.onEnd([]() {
+    Serial.println("End");
+    lcd.setCursor(0,1);
+    lcd.print("                    ");
+    lcd.setCursor(0,1);
+    lcd.print("OTA Update Complete");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
     lcd.setCursor(0,2);
-    lcd.print(WiFi.localIP());
-  }
-  else
-  {
-    Serial.println("Failed connecting to WiFi station. Go into AP mode.");
+    int totalProgress  = (progress / (total/100));
+    lcd.print("Progress: ");
+    lcd.print(totalProgress);
+    lcd.print("%");
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("Error[%u]: ", error);
     lcd.clear();
-    lcd.setCursor(0,1);
-    lcd.print("WiFi: Failed to connect to AP");
-              
-    // Go into software AP mode.
-    WiFi.mode(WIFI_AP);
-
-    delay(10);
-
-    WiFi.softAP(ap_default_ssid, ap_default_psk);
-
-    Serial.print("IP address: ");
-    Serial.println(WiFi.softAPIP());
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("AP PROGRAM MODE");
-    lcd.setCursor(0,1);
-    lcd.print(WiFi.softAPIP());
-    lcd.setCursor(0,2);
-    lcd.print("Connect to");
     lcd.setCursor(0,3);
-    lcd.print("Arduino software");     
-  }
-
-  // Start OTA server.
-  ArduinoOTA.setHostname((const char *)hostname.c_str());
+    if (error == OTA_AUTH_ERROR)
+    {
+      Serial.println("Auth Failed");
+      lcd.print("OTA Auth Failed");
+    }
+    else if (error == OTA_BEGIN_ERROR)
+    {
+      Serial.println("Begin Failed");
+      lcd.print("OTA Begin Failed");
+    }
+    else if (error == OTA_CONNECT_ERROR)
+    {
+      Serial.println("Connect Failed");
+      lcd.print("OTA Connect Failed");
+    }
+    else if (error == OTA_RECEIVE_ERROR)
+    {
+      Serial.println("Receive Failed");
+      lcd.print("OTA Receive Failed");
+    }
+    else if (error == OTA_END_ERROR)
+    {
+      Serial.println("End Failed");
+      lcd.print("OTA End Failed");
+    }
+  });
   ArduinoOTA.begin();
+  Serial.println("Ready");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+  lcd.setCursor(0,1);
+  lcd.print("WiFi: Connected");
+  lcd.setCursor(0,2);
+  lcd.print(WiFi.localIP());
+  delay(2000);
 }
 
 // ---------- OTA CONFIGURATION - DO NOT MODIFY ----------
