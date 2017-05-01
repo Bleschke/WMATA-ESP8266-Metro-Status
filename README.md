@@ -17,14 +17,14 @@ Project Breakdown:
         * GR - GREEN
         * YL - YELLOW
         * SV - SILVER
-    * Fades in-out upon arrival
-    * Sparkle flash upon boarding
+    * Fades in-out upon arrival (1-3 min)
+    * Sparkle flash upon boarding (0-1 min)
 * 7-Segment LED
     * Displays arrival time (minutes)
 * 20x4 LCD
     * Displays station updates
         * LN   - Line
-        * CAR  - Car number
+        * CAR  - Number of cars on train
         * DEST - Destination station
         * MIN  - Minutes until arrival
 
