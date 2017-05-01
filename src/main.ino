@@ -61,13 +61,6 @@
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 int waitTime = 10;
 
-uint32_t metroRed = pixels.Color(209 ,18, 66);        // convert color value to name "metroRed"
-uint32_t metroBlue = pixels.Color(0, 150, 214);       // convert color value to name "metroBlue"
-uint32_t metroOrange = pixels.Color(248, 151, 29);    // convert color value to name "metroOrange"
-uint32_t metroYellow = pixels.Color(255, 221, 0);     // convert color value to name "metroYellow"
-uint32_t metroGreen = pixels.Color(0, 183, 96);       // convert color value to name "metroGreen"
-uint32_t metroSilver = pixels.Color(167, 169, 172);   // convert color value to name "metroSilver"
-
 // ** 7-segment LED setup **
 Adafruit_7segment matrix = Adafruit_7segment();
 
@@ -97,7 +90,7 @@ const String stationD        = "STATION_NAME";      // Metro station name. ex. S
   
 long metroCheckInterval              = 60000;       // DO NOT Exceed 50000 API calls a day. Time (milliseconds) until next metro train check.
 unsigned long previousMetroMillis    = 0;           // Do not change.
-int changeButton                     = 2;          // Do not change.
+int changeButton                     = 2;           // Do not change.
 int counter                          = 0;           // Do not change.
 
 // ** JSON Parser Information
