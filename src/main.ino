@@ -1,8 +1,9 @@
+
 /* 
  * Brian Leschke
- * April 30, 2017
+ * April 27, 2017
  * Adafruit Huzzah WMATA ESP8266 Metro Status
- * An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 20x4 LCD screen (station updates).
+ * An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 16x4 LCD screen (station updates).
  * Version 1.0
  * 
  *
@@ -21,9 +22,9 @@
  * 4/27/2017 - Added JSON parsing, modified code and libraries, INITIAL RELEASE!
  * 4/28/2017 - Changed neopixel brightness, parsing port (parsing), and added neopixel sparkle code (arrival)
  * 4/30/2017 - fixed color notifications and modified button.
+ * 5/1/2017  - added No passenger line.
  * 
- *
- *
+ * 
  *
 */
 
@@ -90,16 +91,17 @@ const String stationD        = "STATION_NAME";      // Metro station name. ex. S
   
 long metroCheckInterval              = 60000;       // DO NOT Exceed 50000 API calls a day. Time (milliseconds) until next metro train check.
 unsigned long previousMetroMillis    = 0;           // Do not change.
-int changeButton                     = 2;           // Do not change.
+int changeButton                     = 2;          // Do not change.
 int counter                          = 0;           // Do not change.
 
+
 // ** JSON Parser Information
-const int buffer_size = 300;       // length of json buffer. Do not change.
-const int buffer=300;              // Do not change.
+const int buffer_size = 300;                        // length of json buffer
+const int buffer=300;                               // Do not change.
 
-int passNum = 1;                   // Do not change.
+int passNum = 1;                                    // Do not change.
 
-char* metroConds[]={		   // Do not change.
+char* metroConds[]={                                // Do not change.
    "\"Car\":",
    "\"Destination\":",
    "\"DestinationCode\":",
@@ -111,13 +113,15 @@ char* metroConds[]={		   // Do not change.
    "\"Min\":",
 };
 
-int num_elements        = 9;       // number of conditions you are retrieving, count of elements in conds
-unsigned long WMillis   = 0;       // temporary millis() register
+int num_elements        = 9;  // number of conditions you are retrieving, count of elements in conds
+
+unsigned long WMillis   = 0;  // temporary millis() register
+
 
 // ** NTP SERVER INFORMATION **
 // const char* timeHost = "time-c.nist.gov";
 const char* timeHost    = "129.6.15.30";
-const int timePort      = 2;       //pullup pin is GPIO 2 and Adaruit Huzzah
+const int timePort      = 13;
 
 int ln = 0;
 String TimeDate = "";
@@ -218,7 +222,7 @@ void setup()
   lcd.begin(20,4);
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("WMATA Metro Status");
+  lcd.print("WMATA Status");
   lcd.setCursor(0,1);
   lcd.print("Version 1.0");
   lcd.setCursor(0,2);
@@ -232,8 +236,9 @@ void setup()
   pinMode(changeButton, INPUT_PULLUP);
   
   
-  pixels.setPixelColor(NUMPIXELS, pixels.Color(0,0,0)); // OFF
+  pixels.setPixelColor(0, pixels.Color(0,0,0)); // OFF
   pixels.show(); // This sends the updated pixel color to the hardware.
+  pixels.setBrightness(128);
   rainbowCycle(10);  // Loading screen
 
   Serial.println("\r\n");
@@ -304,14 +309,12 @@ void setup()
   Serial.println("Wait for WiFi connection.");
   lcd.setCursor(0,1);
   lcd.print("WiFi: Connecting");
-  lcd.setCursor(0,2);
 
   // ... Give ESP 10 seconds to connect to station.
   unsigned long startTime = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - startTime < 10000)
   {
     Serial.write('.');
-    lcd.print(".");
     //Serial.print(WiFi.status());
     delay(500);
   }
@@ -1277,12 +1280,35 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Destination);
   lcd.print("  ");
-  lcd.print(Min);
+  lcd.print(CMin);
 
   matrix.clear();
   matrix.writeDigitRaw(0, B01011100);  // 7 Segment LED "O"
   matrix.writeDigitRaw(1, B01011100);  // 7 Segment LED "O"
   matrix.writeDigitRaw(3, B01101101);  // 7 Segment LED "S"
+  matrix.writeDisplay();
+ }
+ else if (Line == "No")
+ {
+  Serial.println("No Passenger");
+  colorWipe(pixels.Color(212, 0, 212), 0); // set all neopixels to Purple
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("No Passenger");
+  lcd.setCursor(0,1);
+  lcd.print("LN  CAR  DEST  MIN");
+  lcd.setCursor(0,2);
+  lcd.print(Line);
+  lcd.print("  ");
+  lcd.print(Car);
+  lcd.print("  ");
+  lcd.print(Destination);
+  lcd.print("  ");
+  lcd.print(CMin);
+
+  matrix.clear();
+  matrix.writeDigitRaw(0, B01010100);  // 7 Segment LED "n"
+  matrix.writeDigitRaw(1, B01011100);  // 7 Segment LED "o"
   matrix.writeDisplay();
  }
  else
@@ -1304,7 +1330,7 @@ void parseJSON(char json[300])
 	lcd.print("  ");
 	lcd.print(Destination);
 	lcd.print("  ");
-	lcd.print(Min);
+	lcd.print(CMin);
  }
 }
 
