@@ -97,7 +97,7 @@ const String stationD        = "STATION_NAME";      // Metro station name. ex. S
   
 long metroCheckInterval              = 60000;       // DO NOT Exceed 50000 API calls a day. Time (milliseconds) until next metro train check.
 unsigned long previousMetroMillis    = 0;           // Do not change.
-int changeButton                     = 14;          // Do not change.
+int changeButton                     = 2;          // Do not change.
 int counter                          = 0;           // Do not change.
 
 // ** JSON Parser Information
