@@ -13,9 +13,9 @@ Project Breakdown:
     * Displays Metro Line
         * RD - RED
         * OR - ORANGE
-        * BL - BLUE
-        * GR - GREEN
         * YL - YELLOW
+        * GR - GREEN
+        * BL - BLUE
         * SV - SILVER
     * Fades in-out upon arrival (1-3 min)
     * Sparkle flash upon boarding (0-1 min)
