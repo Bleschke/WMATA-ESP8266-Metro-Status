@@ -2,7 +2,7 @@
  * Brian Leschke
  * April 30, 2017
  * Adafruit Huzzah WMATA ESP8266 Metro Status
- * An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 16x4 LCD screen (station updates).
+ * An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 20x4 LCD screen (station updates).
  * Version 1.0
  * 
  *
@@ -102,12 +102,12 @@ int counter                          = 0;           // Do not change.
 
 
 // ** JSON Parser Information
-const int buffer_size = 300;                        // length of json buffer
-const int buffer=300;                               // Do not change.
+const int buffer_size = 300;       // length of json buffer. Do not change.
+const int buffer=300;              // Do not change.
 
-int passNum = 1;                                    // Do not change.
+int passNum = 1;                   // Do not change.
 
-char* metroConds[]={
+char* metroConds[]={		   // Do not change.
    "\"Car\":",
    "\"Destination\":",
    "\"DestinationCode\":",
@@ -119,15 +119,13 @@ char* metroConds[]={
    "\"Min\":",
 };
 
-int num_elements        = 9;  // number of conditions you are retrieving, count of elements in conds
-
-unsigned long WMillis   = 0;                           // temporary millis() register
-
+int num_elements        = 9;       // number of conditions you are retrieving, count of elements in conds
+unsigned long WMillis   = 0;       // temporary millis() register
 
 // ** NTP SERVER INFORMATION **
 // const char* timeHost = "time-c.nist.gov";
 const char* timeHost    = "129.6.15.30";
-const int timePort      = 13;
+const int timePort      = 2;       //pullup pin is GPIO 2 and Adaruit Huzzah
 
 int ln = 0;
 String TimeDate = "";
@@ -221,13 +219,14 @@ void setup()
 {
   delay(2000);
   matrix.begin(0x70);
-  matrix.print(1234);  // 7 Segment LED
+  matrix.writeDigitRaw(1, B01011110);  // 7 Segment LED "d"
+  matrix.writeDigitRaw(3, B01011000);  // 7 Segment LED "c" 
   matrix.writeDisplay();
   delay(1000); 
   lcd.begin(20,4);
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("WMATA Status");
+  lcd.print("WMATA Metro Status");
   lcd.setCursor(0,1);
   lcd.print("Version 1.0");
   lcd.setCursor(0,2);
@@ -241,7 +240,7 @@ void setup()
   pinMode(changeButton, INPUT_PULLUP);
   
   
-  pixels.setPixelColor(0, pixels.Color(0,0,0)); // OFF
+  pixels.setPixelColor(NUMPIXELS, pixels.Color(0,0,0)); // OFF
   pixels.show(); // This sends the updated pixel color to the hardware.
   rainbowCycle(10);  // Loading screen
 
@@ -313,12 +312,14 @@ void setup()
   Serial.println("Wait for WiFi connection.");
   lcd.setCursor(0,1);
   lcd.print("WiFi: Connecting");
+  lcd.setCursor(0,2);
 
   // ... Give ESP 10 seconds to connect to station.
   unsigned long startTime = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - startTime < 10000)
   {
     Serial.write('.');
+    lcd.print(".");
     //Serial.print(WiFi.status());
     delay(500);
   }
