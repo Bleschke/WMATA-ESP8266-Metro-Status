@@ -73,7 +73,7 @@ Adafruit_7segment matrix = Adafruit_7segment();
 LiquidCrystal_I2C lcd(LED_ADDR, 2, 1, 0, 4, 5, 6, 7, BACKLIGHT_PIN, POSITIVE);  // Set the LCD I2C address
 
 // ** WiFi connection and OTA Information **
-const char*     ssid = "WIFI_SSID";   // Default SSID.
+const char*     ssid = "WIFI_SSID";       // Default SSID.
 const char* password = "WIFI_PASSWORD";   // Default PSK.
 
 // ** WMATA Information **
@@ -114,7 +114,6 @@ char* metroConds[]={                                // Do not change.
 };
 
 int num_elements        = 9;  // number of conditions you are retrieving, count of elements in conds
-
 unsigned long WMillis   = 0;  // temporary millis() register
 
 
@@ -177,7 +176,7 @@ void setup()
   // ArduinoOTA.setHostname("myesp8266");
 
   // No authentication by default
-  //ArduinoOTA.setPassword((const char *)1234);
+  //ArduinoOTA.setPassword((const char *)13619);
 
   ArduinoOTA.onStart([]() {
     Serial.println("Start");
@@ -234,6 +233,7 @@ void setup()
   Serial.println("Ready");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+  lcd.clear();
   lcd.setCursor(0,1);
   lcd.print("WiFi: Connected");
   lcd.setCursor(0,2);
@@ -469,6 +469,8 @@ void MetroCheckA()
   
   if (!client.connect(WMATAServer, httpPort)) {
     Serial.println("connection failed");
+    lcd.setCursor(0,2);
+    lcd.print("Connection Failed");
     return;
   }
   
@@ -537,6 +539,8 @@ void MetroCheckB()
   
   if (!client.connect(WMATAServer, httpPort)) {
     Serial.println("connection failed");
+    lcd.setCursor(0,2);
+    lcd.print("Connection Failed");
     return;
   }
   
@@ -604,6 +608,8 @@ void MetroCheckC()
   
   if (!client.connect(WMATAServer, httpPort)) {
     Serial.println("connection failed");
+    lcd.setCursor(0,2);
+    lcd.print("Connection Failed");
     return;
   }
   
@@ -671,6 +677,8 @@ void MetroCheckD()
   
   if (!client.connect(WMATAServer, httpPort)) {
     Serial.println("connection failed");
+    lcd.setCursor(0,2);
+    lcd.print("Connection Failed");
     return;
   }
   
@@ -772,7 +780,7 @@ void GetTime()
 
 void FadeInOut(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
 
-  for(uint8_t b=60; b <128; b++) {
+  for(uint8_t b=128; b > 60; b--) {
      for(uint8_t i=0; i < pixels.numPixels(); i++) {
         pixels.setPixelColor(i, red*b/255, green*b/255, blue*b/255);
      }
@@ -780,7 +788,7 @@ void FadeInOut(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
      delay(wait);
   }
 
-  for(uint8_t b=128; b > 60; b--) {
+  for(uint8_t b=60; b <128; b++) {
      for(uint8_t i=0; i < pixels.numPixels(); i++) {
         pixels.setPixelColor(i, red*b/255, green*b/255, blue*b/255);
      }
@@ -805,9 +813,9 @@ void rainbowCycle(uint8_t wait) {
  
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
     for(i=0; i< pixels.numPixels(); i++) {
-      pixels.setBrightness(128);
       pixels.setPixelColor(i, Wheel(((i * 256 / pixels.numPixels()) + j) & 255));
     }
+    pixels.setBrightness(128);
     pixels.show();
     delay(wait);
   }
@@ -895,7 +903,9 @@ void parseJSON(char json[300])
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
-    
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
+
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,0, 0, waitTime);      // Sparkle Red
       delay(20);
@@ -909,7 +919,9 @@ void parseJSON(char json[300])
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01011110); // 7 Segment LED "d" 
     matrix.writeDisplay();
-    
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
+ 
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,0, 0, waitTime);      // Sparkle Red
       delay(20);
@@ -931,7 +943,9 @@ void parseJSON(char json[300])
   {
     matrix.print(Min);
     matrix.writeDisplay();
-    
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
+
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,0, 0, waitTime);      // Sparkle Red
       delay(20);
@@ -968,7 +982,9 @@ void parseJSON(char json[300])
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
-    
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
+
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,165, 0, waitTime);      // Sparkle Orange
       delay(20);
@@ -982,6 +998,8 @@ void parseJSON(char json[300])
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01011110); // 7 Segment LED "d" 
     matrix.writeDisplay();
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
     
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,165, 0, waitTime);      // Sparkle Orange
@@ -1005,6 +1023,8 @@ void parseJSON(char json[300])
   {
     matrix.print(Min);
     matrix.writeDisplay();
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
 
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,165, 0, waitTime);      // Sparkle Orange
@@ -1042,6 +1062,8 @@ void parseJSON(char json[300])
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
     
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,225, 0, waitTime);      // Sparkle Yellow
@@ -1056,6 +1078,8 @@ void parseJSON(char json[300])
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01011110); // 7 Segment LED "d" 
     matrix.writeDisplay();
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
     
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,225, 0, waitTime);      // Sparkle Yellow
@@ -1078,6 +1102,8 @@ void parseJSON(char json[300])
   {
     matrix.print(Min);
     matrix.writeDisplay();
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
 
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,255, 0, waitTime);      // Sparkle Yellow
@@ -1115,6 +1141,8 @@ void parseJSON(char json[300])
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
     
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(0 ,128, 0, waitTime);      // Sparkle Green
@@ -1129,6 +1157,8 @@ void parseJSON(char json[300])
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01011110); // 7 Segment LED "d" 
     matrix.writeDisplay();
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
     
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(0 ,128, 0, waitTime);      // Sparkle Green
@@ -1151,6 +1181,8 @@ void parseJSON(char json[300])
   {
     matrix.print(Min);
     matrix.writeDisplay();
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
 
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(0 ,128, 0, waitTime);      // Sparkle Green
@@ -1188,6 +1220,8 @@ void parseJSON(char json[300])
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
     
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(0 ,0, 255, waitTime);      // Sparkle Blue
@@ -1202,6 +1236,8 @@ void parseJSON(char json[300])
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01011110); // 7 Segment LED "d" 
     matrix.writeDisplay();
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
     
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(0 ,0, 255, waitTime);      // Sparkle Blue
@@ -1224,6 +1260,8 @@ void parseJSON(char json[300])
   {
     matrix.print(Min);
     matrix.writeDisplay();
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
 
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(0 ,0, 255, waitTime);      // Sparkle Blue
@@ -1261,6 +1299,8 @@ void parseJSON(char json[300])
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01010000); // 7 Segment LED "r"
     matrix.writeDisplay();
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
     
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,0, 0, waitTime);      // Sparkle Red
@@ -1275,7 +1315,9 @@ void parseJSON(char json[300])
     matrix.writeDigitRaw(1, B01010000); // 7 Segment LED "r"
     matrix.writeDigitRaw(3, B01011110); // 7 Segment LED "d" 
     matrix.writeDisplay();
-    
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
+ 
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(192, 192, 192, waitTime);      // Sparkle Silver
       delay(20);
@@ -1297,6 +1339,8 @@ void parseJSON(char json[300])
   {
     matrix.print(Min);
     matrix.writeDisplay();
+
+    colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
 
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(192 ,192, 192, waitTime);      // Sparkle Silver
