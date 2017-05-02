@@ -1,7 +1,6 @@
-
 /* 
  * Brian Leschke
- * May 1, 2017
+ * May 2, 2017
  * Adafruit Huzzah WMATA ESP8266 Metro Status
  * An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 16x4 LCD screen (station updates).
  * Version 1.0
@@ -23,6 +22,7 @@
  * 4/28/2017 - Changed neopixel brightness, parsing port (parsing), and added neopixel sparkle code (arrival)
  * 4/30/2017 - fixed color notifications and modified button.
  * 5/1/2017  - added "No passenger", "brd", "arr" and simplified the wifi and OTA code.
+ * 5/2/2017  - stabilized network connection. Added NetworkRestart()
  * 
  * 
  *
@@ -54,7 +54,7 @@
 // -------------------- CONFIGURATION --------------------
 
 // ** mDNS and OTA Constants **
-#define HOSTNAME "ESP8266-OTA-"     // Hostename. The setup function adds the Chip ID at the end.
+//#define HOSTNAME "ESP8266-OTA-"     // Hostename. The setup function adds the Chip ID at the end.
 
 // ** Neopixel Setup **
 #define PIN            0            // Pin used for Neopixel communication
@@ -176,7 +176,7 @@ void setup()
   // ArduinoOTA.setHostname("myesp8266");
 
   // No authentication by default
-  //ArduinoOTA.setPassword((const char *)13619);
+  ArduinoOTA.setPassword((const char *)"OTA_PASSWORD");    // OTA auth password
 
   ArduinoOTA.onStart([]() {
     Serial.println("Start");
@@ -453,6 +453,7 @@ void DetermineStation()
 
 void MetroCheckA()
 {
+  RestartNetwork();
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(stationA);
@@ -524,6 +525,7 @@ void MetroCheckA()
 
 void MetroCheckB()
 {
+  RestartNetwork();
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(stationB);
@@ -593,6 +595,7 @@ void MetroCheckB()
               
 void MetroCheckC()
 {
+  RestartNetwork();
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(stationC);
@@ -662,6 +665,7 @@ void MetroCheckC()
               
 void MetroCheckD()
 {
+  RestartNetwork();
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(stationD);
@@ -728,121 +732,7 @@ void MetroCheckD()
   Serial.println(json);                                         // debugging json string 
   parseJSON(json);                                              // extract the conditions
 }
-              
-void GetTime()
-{
-  Serial.print("connecting to ");
-  Serial.println(timeHost);
 
-  // Use WiFiClient class to create TCP connections
-  WiFiClient client;
-
-  if (!client.connect(timeHost, timePort)) {
-    Serial.println("NIST Timeservers: connection failed");
-    return;
-  }
-  
-  // This will send the request to the server
-  client.print("HEAD / HTTP/1.1\r\nAccept: */*\r\nUser-Agent: Mozilla/4.0 (compatible; ESP8266 NodeMcu Lua;)\r\n\r\n");
-
-  delay(100);
-
-  // Read all the lines of the reply from server and print them to Serial
-  // expected line is like : Date: Thu, 01 Jan 2015 22:00:14 GMT
-  char buffer[12];
-
-  while(client.available())
-  {
-    String line = client.readStringUntil('\r');
-
-    if (line.indexOf("Date") != -1)
-    {
-      Serial.print("=====>");
-    } else
-    {
-      // Serial.print(line);
-      // date starts at pos 10. We don't need the year.
-      TimeDate = line.substring(10);
-      Serial.println("UTC Time and Date:");
-      Serial.println(TimeDate);
-      // time starts at pos 14
-      //TimeDate = line.substring(10, 15);
-      //TimeDate.toCharArray(buffer, 10);
-      //Serial.println("UTC Date:");    // MM-DD
-      //Serial.println(buffer);
-      TimeDate = line.substring(16, 24);
-      TimeDate.toCharArray(buffer, 10);
-      Serial.println("UTC Time:");    // HH:MM:SS UTC
-      Serial.println(buffer);
-    }
-  }
-}
-
-void FadeInOut(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
-
-  for(uint8_t b=128; b > 60; b--) {
-     for(uint8_t i=0; i < pixels.numPixels(); i++) {
-        pixels.setPixelColor(i, red*b/255, green*b/255, blue*b/255);
-     }
-     pixels.show();
-     delay(wait);
-  }
-
-  for(uint8_t b=60; b <128; b++) {
-     for(uint8_t i=0; i < pixels.numPixels(); i++) {
-        pixels.setPixelColor(i, red*b/255, green*b/255, blue*b/255);
-     }
-     pixels.show();
-     delay(wait);
-  }
-}
-
-// Fill the dots one after the other with a color
-void colorWipe(uint32_t c, uint8_t wait) {
-  for(uint16_t i=0; i<pixels.numPixels(); i++) {
-      pixels.setBrightness(128);
-      pixels.setPixelColor(i, c);
-      pixels.show();
-      delay(wait);
-  }
-}
-              
-// Slightly different, this makes the rainbow equally distributed throughout
-void rainbowCycle(uint8_t wait) {
-  uint16_t i, j;
- 
-  for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
-    for(i=0; i< pixels.numPixels(); i++) {
-      pixels.setPixelColor(i, Wheel(((i * 256 / pixels.numPixels()) + j) & 255));
-    }
-    pixels.setBrightness(128);
-    pixels.show();
-    delay(wait);
-  }
-}
- 
-// Input a value 0 to 255 to get a color value.
-// The colours are a transition r - g - b - back to r.
-uint32_t Wheel(byte WheelPos) {
-  if(WheelPos < 85) {
-   return pixels.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
-  } else if(WheelPos < 170) {
-   WheelPos -= 85;
-   return pixels.Color(255 - WheelPos * 3, 0, WheelPos * 3);
-  } else {
-   WheelPos -= 170;
-   return pixels.Color(0, WheelPos * 3, 255 - WheelPos * 3);
-  }
-}
-
-void Sparkle(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
-  int Pixel = random(NUMPIXELS);
-  pixels.setBrightness(128);
-  pixels.setPixelColor(Pixel, pixels.Color(red, green, blue)); 
-  pixels.show();
-  delay(wait);
-  pixels.setPixelColor(Pixel,0,0,0);
-}
 
 void parseJSON(char json[300])
 {
@@ -1428,6 +1318,153 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(CMin);
  }
+}
+              
+void GetTime()
+{
+  Serial.print("connecting to ");
+  Serial.println(timeHost);
+
+  // Use WiFiClient class to create TCP connections
+  WiFiClient client;
+
+  if (!client.connect(timeHost, timePort)) {
+    Serial.println("NIST Timeservers: connection failed");
+    return;
+  }
+  
+  // This will send the request to the server
+  client.print("HEAD / HTTP/1.1\r\nAccept: */*\r\nUser-Agent: Mozilla/4.0 (compatible; ESP8266 NodeMcu Lua;)\r\n\r\n");
+
+  delay(100);
+
+  // Read all the lines of the reply from server and print them to Serial
+  // expected line is like : Date: Thu, 01 Jan 2015 22:00:14 GMT
+  char buffer[12];
+
+  while(client.available())
+  {
+    String line = client.readStringUntil('\r');
+
+    if (line.indexOf("Date") != -1)
+    {
+      Serial.print("=====>");
+    } else
+    {
+      // Serial.print(line);
+      // date starts at pos 10. We don't need the year.
+      TimeDate = line.substring(10);
+      Serial.println("UTC Time and Date:");
+      Serial.println(TimeDate);
+      // time starts at pos 14
+      //TimeDate = line.substring(10, 15);
+      //TimeDate.toCharArray(buffer, 10);
+      //Serial.println("UTC Date:");    // MM-DD
+      //Serial.println(buffer);
+      TimeDate = line.substring(16, 24);
+      TimeDate.toCharArray(buffer, 10);
+      Serial.println("UTC Time:");    // HH:MM:SS UTC
+      Serial.println(buffer);
+    }
+  }
+}
+
+void RestartNetwork()
+{
+  WiFiClient client;
+  lcd.clear();
+  Serial.println("Resetting WiFi");
+  lcd.print("Resetting WiFi");
+  WiFi.disconnect();
+  Serial.println("Network connection stopped");
+  delay(1000);
+  WiFi.begin(ssid, password);
+  Serial.println("connecting");
+  while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+    Serial.println("Connection Failed! Rebooting...");
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Wifi Fail: Rebooting");
+    
+    delay(5000);
+    ESP.restart();
+  }
+  ArduinoOTA.begin();  
+  Serial.println("Ready");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+  lcd.clear();
+  lcd.setCursor(0,1);
+  lcd.print("WiFi: Connected");
+  lcd.setCursor(0,2);
+  lcd.print(WiFi.localIP());
+  delay(2000);
+}
+
+void FadeInOut(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
+
+  for(uint8_t b=128; b > 60; b--) {
+     for(uint8_t i=0; i < pixels.numPixels(); i++) {
+        pixels.setPixelColor(i, red*b/255, green*b/255, blue*b/255);
+     }
+     pixels.show();
+     delay(wait);
+  }
+
+  for(uint8_t b=60; b <128; b++) {
+     for(uint8_t i=0; i < pixels.numPixels(); i++) {
+        pixels.setPixelColor(i, red*b/255, green*b/255, blue*b/255);
+     }
+     pixels.show();
+     delay(wait);
+  }
+}
+
+// Fill the dots one after the other with a color
+void colorWipe(uint32_t c, uint8_t wait) {
+  for(uint16_t i=0; i<pixels.numPixels(); i++) {
+      pixels.setBrightness(128);
+      pixels.setPixelColor(i, c);
+      pixels.show();
+      delay(wait);
+  }
+}
+              
+// Slightly different, this makes the rainbow equally distributed throughout
+void rainbowCycle(uint8_t wait) {
+  uint16_t i, j;
+ 
+  for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
+    for(i=0; i< pixels.numPixels(); i++) {
+      pixels.setPixelColor(i, Wheel(((i * 256 / pixels.numPixels()) + j) & 255));
+    }
+    pixels.setBrightness(128);
+    pixels.show();
+    delay(wait);
+  }
+}
+ 
+// Input a value 0 to 255 to get a color value.
+// The colours are a transition r - g - b - back to r.
+uint32_t Wheel(byte WheelPos) {
+  if(WheelPos < 85) {
+   return pixels.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+  } else if(WheelPos < 170) {
+   WheelPos -= 85;
+   return pixels.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  } else {
+   WheelPos -= 170;
+   return pixels.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+  }
+}
+
+void Sparkle(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
+  int Pixel = random(NUMPIXELS);
+  pixels.setBrightness(128);
+  pixels.setPixelColor(Pixel, pixels.Color(red, green, blue)); 
+  pixels.show();
+  delay(wait);
+  pixels.setPixelColor(Pixel,0,0,0);
 }
 
 // ---------- ESP 8266 FUNCTIONS - SOME CAN BE REMOVED ----------
