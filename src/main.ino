@@ -453,7 +453,6 @@ void DetermineStation()
 
 void MetroCheckA()
 {
-  RestartNetwork();
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(stationA);
@@ -525,7 +524,6 @@ void MetroCheckA()
 
 void MetroCheckB()
 {
-  RestartNetwork();
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(stationB);
@@ -595,7 +593,6 @@ void MetroCheckB()
               
 void MetroCheckC()
 {
-  RestartNetwork();
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(stationC);
@@ -665,7 +662,6 @@ void MetroCheckC()
               
 void MetroCheckD()
 {
-  RestartNetwork();
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(stationD);
@@ -1318,6 +1314,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(CMin);
  }
+  RestartNetwork();
 }
               
 void GetTime()
@@ -1481,7 +1478,7 @@ void loop()
 
   // ** Metro Check **
   DetermineStation();
-  yield();
 
   // ---------- USER CODE GOES HERE ----------
+  yield();
 }
