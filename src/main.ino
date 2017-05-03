@@ -1247,7 +1247,7 @@ void parseJSON(char json[300])
  else if (Line == "--")
  {
   Serial.println("LINE/TRAIN OUT OF SERVICE");
-  colorWipe(pixels.Color(255, 0, 255), 0); // set all neopixels to Magenta
+  colorWipe(pixels.Color(128, 0, 128), 0); // set all neopixels to Magenta
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Out of Service");
@@ -1273,7 +1273,7 @@ void parseJSON(char json[300])
  else if (Line == "No")
  {
   Serial.println("No Passenger");
-  colorWipe(pixels.Color(255, 0, 255), 0); // set all neopixels to Magenta
+  colorWipe(pixels.Color(128, 0, 128), 0); // set all neopixels to Magenta
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("No Passenger");
@@ -1298,7 +1298,7 @@ void parseJSON(char json[300])
  else
  {
   Serial.println("LINE UNKNOWN");
-  colorWipe(pixels.Color(255, 0, 255), 0); // set all neopixels to Magenta
+  colorWipe(pixels.Color(128, 0, 128), 0); // set all neopixels to Magenta
   matrix.print(Min);
   matrix.writeDisplay();
   
