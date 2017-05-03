@@ -37,7 +37,7 @@ You will need:
 3. 7-Segment Alphanumeric LED (http://adafru.it/878)
 4. Serial 20x4 LCD (ebay)
 5. Arduino programming software
-6. Python installed on your operating system (used for OTA updates).
+6. Python 2.7.x installed on your operating system (used for OTA updates).
 7. FTDI cable (https://www.sparkfun.com/products/9717)
 8. WMATA API (http://developer.wmata.com)
 
