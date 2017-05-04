@@ -591,6 +591,7 @@ void MetroCheckB()
   }
   Serial.println(json);                                         // debugging json string 
   parseJSON(json);                                              // extract the conditions
+  WMillis=millis();
 }
               
 void MetroCheckC()
@@ -661,6 +662,7 @@ void MetroCheckC()
   }
   Serial.println(json);                                         // debugging json string 
   parseJSON(json);                                              // extract the conditions
+  WMillis=millis();
 }              
               
 void MetroCheckD()
@@ -731,6 +733,7 @@ void MetroCheckD()
   }
   Serial.println(json);                                         // debugging json string 
   parseJSON(json);                                              // extract the conditions
+  WMillis=millis();
 }
 
 
@@ -766,7 +769,6 @@ void parseJSON(char json[300])
  Serial.println(Group);
  Serial.println(Line);
  Serial.println(LocationCode);
- Serial.println(LocationName);
  Serial.println(CMin);
  Serial.println(Min);
 
@@ -774,8 +776,6 @@ void parseJSON(char json[300])
  {
   Serial.println("RED LINE");
   colorWipe(pixels.Color(255 ,0, 0), 0); // set all neopixels to Red
-  lcd.setCursor(0,0);
-  lcd.print(LocationName);
   lcd.setCursor(0,1);
   lcd.print("                    ");
   lcd.setCursor(0,1);
@@ -855,8 +855,6 @@ void parseJSON(char json[300])
  {
   Serial.println("ORANGE LINE");
   colorWipe(pixels.Color(255, 165, 0), 0); // set all neopixels to Orange
-  lcd.setCursor(0,0);
-  lcd.print(LocationName);
   lcd.setCursor(0,1);
   lcd.print("                    ");
   lcd.setCursor(0,1);
@@ -937,8 +935,6 @@ void parseJSON(char json[300])
  {
   Serial.println("YELLOW LINE");
   colorWipe(pixels.Color(255, 255, 0), 0); // set all neopixels to Yellow
-  lcd.setCursor(0,0);
-  lcd.print(LocationName);
   lcd.setCursor(0,1);
   lcd.print("                    ");
   lcd.setCursor(0,1);
@@ -1018,8 +1014,6 @@ void parseJSON(char json[300])
  {
   Serial.println("GREEN LINE");
   colorWipe(pixels.Color(0, 128, 0), 0); // set all neopixels to Green
-  lcd.setCursor(0,0);
-  lcd.print(LocationName);
   lcd.setCursor(0,1);
   lcd.print("                    ");
   lcd.setCursor(0,1);
@@ -1099,8 +1093,6 @@ void parseJSON(char json[300])
  {
   Serial.println("BLUE LINE");
   colorWipe(pixels.Color(0, 0, 255), 0); // set all neopixels to Blue
-  lcd.setCursor(0,0);
-  lcd.print(LocationName);
   lcd.setCursor(0,1);
   lcd.print("                    ");
   lcd.setCursor(0,1);
@@ -1180,8 +1172,6 @@ void parseJSON(char json[300])
  {
   Serial.println("SILVER LINE");
   colorWipe(pixels.Color(192, 192, 192), 0); // set all neopixels to Silver
-  lcd.setCursor(0,0);
-  lcd.print(LocationName);
   lcd.setCursor(0,1);
   lcd.print("                    ");
   lcd.setCursor(0,1);
@@ -1260,7 +1250,7 @@ void parseJSON(char json[300])
  else if (Line == "--")
  {
   Serial.println("LINE/TRAIN OUT OF SERVICE");
-  colorWipe(pixels.Color(128, 0, 128), 0); // set all neopixels to Magenta
+  colorWipe(pixels.Color(76, 0, 91), 0); // set all neopixels to Magenta
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Out of Service");
@@ -1286,7 +1276,7 @@ void parseJSON(char json[300])
  else if (Line == "No")
  {
   Serial.println("No Passenger");
-  colorWipe(pixels.Color(128, 0, 128), 0); // set all neopixels to Magenta
+  colorWipe(pixels.Color(76, 0, 91), 0); // set all neopixels to Magenta
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("No Passenger");
@@ -1311,7 +1301,7 @@ void parseJSON(char json[300])
  else
  {
   Serial.println("LINE UNKNOWN");
-  colorWipe(pixels.Color(128, 0, 128), 0); // set all neopixels to Magenta
+  colorWipe(pixels.Color(76, 0, 91), 0); // set all neopixels to Magenta
   matrix.print(Min);
   matrix.writeDisplay();
   
@@ -1496,5 +1486,5 @@ void loop()
   DetermineStation();
 
   // ---------- USER CODE GOES HERE ----------
-  yield();
+yield();
 }
