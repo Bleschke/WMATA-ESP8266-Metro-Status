@@ -21,6 +21,8 @@ Project Breakdown:
     * Sparkle flash upon boarding (0-1 min)
 * 7-Segment LED
     * Displays arrival time (minutes)
+    * arr - arriving
+    * brd - boarding
 * 20x4 LCD
     * Displays station updates
         * LN   - Line
