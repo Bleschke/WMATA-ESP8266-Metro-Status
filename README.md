@@ -23,6 +23,8 @@ Project Breakdown:
     * Displays arrival time (minutes)
     * arr - arriving
     * brd - boarding
+    * oos - out of service
+    * no  - no passenger
 * 20x4 LCD
     * Displays station updates
         * LN   - Line
