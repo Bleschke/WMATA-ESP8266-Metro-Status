@@ -1,6 +1,6 @@
 /* 
  * Brian Leschke
- * May 2, 2017
+ * May 6, 2017
  * Adafruit Huzzah WMATA ESP8266 Metro Status
  * An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 16x4 LCD screen (station updates).
  * Version 1.0
@@ -8,6 +8,7 @@
  *
  * -- Credit and Recognition: --
  * Thanks to WMATA for providing the API!
+ * Thanks to Mike Rankin for the example parsing code!
  *
  * -- Changelog: -- 
  * 
@@ -23,6 +24,7 @@
  * 4/30/2017 - fixed color notifications and modified button.
  * 5/1/2017  - added "No passenger", "brd", "arr" and simplified the wifi and OTA code.
  * 5/2/2017  - stabilized network connection. Added NetworkRestart()
+ * 5/6/2017  - stabilized device with more "yield()" and added added code to determine if metro has no data (null return from api call).
  * 
  * 
  *
@@ -132,12 +134,10 @@ String TimeDate = "";
 // ---------- OTA CONFIGURATION - DO NOT MODIFY ----------
 void setup()
 {
-  delay(2000);
   matrix.begin(0x70);
   matrix.writeDigitRaw(1, B01011110);  // 7 Segment LED "d"
   matrix.writeDigitRaw(3, B01011000);  // 7 Segment LED "c" 
   matrix.writeDisplay();
-  delay(1000); 
   lcd.begin(20,4);
   lcd.clear();
   lcd.setCursor(0,0);
@@ -146,7 +146,7 @@ void setup()
   lcd.print("Version 1.0");
   lcd.setCursor(0,2);
   lcd.print("Brian Leschke");  
-  delay(3000);
+  delay(2000);
 
   Serial.begin(115200);
   Serial.println("Booting");
@@ -165,7 +165,7 @@ void setup()
     lcd.setCursor(0,0);
     lcd.print("Wifi Fail: Rebooting");
     
-    delay(5000);
+    delay(2000);
     ESP.restart();
   }
 
@@ -238,7 +238,7 @@ void setup()
   lcd.print("WiFi: Connected");
   lcd.setCursor(0,2);
   lcd.print(WiFi.localIP());
-  delay(2000);
+  delay(1000);
 }
 
 // ---------- OTA CONFIGURATION - DO NOT MODIFY ----------
@@ -454,12 +454,12 @@ void DetermineStation()
 void MetroCheckA()
 {
   RestartNetwork();
+  yield();
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(stationA);
   lcd.setCursor(0,1);
   lcd.print("Checking for updates");
-  delay(2000);
   Serial.print("Metro A: connecting to ");
   Serial.println(WMATAServer);
   
@@ -483,11 +483,23 @@ void MetroCheckA()
   delay(500);
   unsigned int i = 0;                                           // timeout counter
   char json[buffer_size]="{";                                   // first character for json-string is begin-bracket 
-  int n = 1;                                                    // character counter for json  
+  int n = 1;                                                    // character counter for json
+  
   
   for (int j=0;j<num_elements;j++){                             // do the loop for every element/condition
     boolean quote = false; int nn = false;                      // if quote=fals means no quotes so comma means break
-    while (!client.find(metroConds[j])){}                            // find the part we are interested in.
+    while (!client.find(metroConds[j]))                         // If metro condition data is not available, try again.
+    {
+      colorWipe(pixels.Color(51, 0, 102), 0); // set all neopixels to Magenta
+      matrix.clear();
+      matrix.writeDigitRaw(1, B01010100);  // 7 Segment LED "n"
+      matrix.writeDigitRaw(3, B01110111);  // 7 Segment LED "a"
+      matrix.writeDisplay();
+      Serial.println("No data available");
+      lcd.setCursor(0,2);
+      lcd.print("No data available");
+      return;
+    }                            
   
     String Str1= metroConds[j];                                     // Str1 gets the name of element/condition
   
@@ -497,8 +509,9 @@ void MetroCheckA()
     while (i<5000) {                                            // timer/counter
       if(client.available()) {                                  // if character found in receive-buffer
         char c = client.read();                                 // read that character
-           Serial.print(c);                                   // 
-// ************************ construction of json string converting comma's inside quotes to dots ********************        
+           Serial.print(c);                                     // 
+           
+// ************************ construction of json string converting comma's inside quotes to dots ******************** 
                if ((c=='"') && (quote==false))                  // there is a " and quote=false, so start of new element
                   {quote = true;nn=n;}                          // make quote=true and notice place in string
                if ((c==',')&&(quote==true)) {c='.';}            // if there is a comma inside quotes, comma becomes a dot.
@@ -526,6 +539,7 @@ void MetroCheckA()
 void MetroCheckB()
 {
   RestartNetwork();
+  yield();
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(stationB);
@@ -558,7 +572,18 @@ void MetroCheckB()
   
   for (int j=0;j<num_elements;j++){                             // do the loop for every element/condition
     boolean quote = false; int nn = false;                      // if quote=fals means no quotes so comma means break
-    while (!client.find(metroConds[j])){}                            // find the part we are interested in.
+    while (!client.find(metroConds[j]))                         // If metro condition data is not available, try again.
+    {
+      colorWipe(pixels.Color(51, 0, 102), 0); // set all neopixels to Magenta
+      matrix.clear();
+      matrix.writeDigitRaw(1, B01010100);  // 7 Segment LED "n"
+      matrix.writeDigitRaw(3, B01110111);  // 7 Segment LED "a"
+      matrix.writeDisplay();
+      Serial.println("No data available");
+      lcd.setCursor(0,2);
+      lcd.print("No data available");
+      return;
+    }  
   
     String Str1 = metroConds[j];                                     // Str1 gets the name of element/condition
   
@@ -597,6 +622,7 @@ void MetroCheckB()
 void MetroCheckC()
 {
   RestartNetwork();
+  yield();
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(stationC);
@@ -629,7 +655,18 @@ void MetroCheckC()
   
   for (int j=0;j<num_elements;j++){                             // do the loop for every element/condition
     boolean quote = false; int nn = false;                      // if quote=fals means no quotes so comma means break
-    while (!client.find(metroConds[j])){}                            // find the part we are interested in.
+    while (!client.find(metroConds[j]))                         // If metro condition data is not available, try again.
+    {
+      colorWipe(pixels.Color(51, 0, 102), 0); // set all neopixels to Magenta
+      matrix.clear();
+      matrix.writeDigitRaw(1, B01010100);  // 7 Segment LED "n"
+      matrix.writeDigitRaw(3, B01110111);  // 7 Segment LED "a"
+      matrix.writeDisplay();
+      Serial.println("No data available");
+      lcd.setCursor(0,2);
+      lcd.print("No data available");
+      return;
+    }  
   
     String Str1 = metroConds[j];                                     // Str1 gets the name of element/condition
   
@@ -668,6 +705,7 @@ void MetroCheckC()
 void MetroCheckD()
 {
   RestartNetwork();
+  yield();
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(stationD);
@@ -700,7 +738,18 @@ void MetroCheckD()
   
   for (int j=0;j<num_elements;j++){                             // do the loop for every element/condition
     boolean quote = false; int nn = false;                      // if quote=fals means no quotes so comma means break
-    while (!client.find(metroConds[j])){}                            // find the part we are interested in.
+    while (!client.find(metroConds[j]))                         // If metro condition data is not available, try again.
+    {
+      colorWipe(pixels.Color(51, 0, 102), 0); // set all neopixels to Magenta
+      matrix.clear();
+      matrix.writeDigitRaw(1, B01010100);  // 7 Segment LED "n"
+      matrix.writeDigitRaw(3, B01110111);  // 7 Segment LED "a"
+      matrix.writeDisplay();
+      Serial.println("No data available");
+      lcd.setCursor(0,2);
+      lcd.print("No data available");
+      return;
+    }  
   
     String Str1 = metroConds[j];                                     // Str1 gets the name of element/condition
   
@@ -740,7 +789,7 @@ void MetroCheckD()
 void parseJSON(char json[300])
 {
   StaticJsonBuffer<buffer> jsonBuffer;
- JsonObject& root = jsonBuffer.parseObject(json);
+  JsonObject& root = jsonBuffer.parseObject(json);
  
  if (!root.success())
 {
@@ -802,6 +851,7 @@ void parseJSON(char json[300])
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,0, 0, waitTime);      // Sparkle Red
       delay(20);
+      yield();
     }
     colorWipe(pixels.Color(255 ,0, 0), 0); // set all neopixels back to Red
   }
@@ -818,6 +868,7 @@ void parseJSON(char json[300])
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,0, 0, waitTime);      // Sparkle Red
       delay(20);
+      yield();
     }
     colorWipe(pixels.Color(255 ,0, 0), 0); // set all neopixels back to Red
   }
@@ -829,6 +880,7 @@ void parseJSON(char json[300])
     for(int i=0; i< fadeCount; i++) {
       FadeInOut(255 ,0, 0, waitTime);    // Fade in and out Red
       delay(500);
+      yield();
     }
     colorWipe(pixels.Color(255 ,0, 0), 0); // set all neopixels back to Red
   }
@@ -842,6 +894,7 @@ void parseJSON(char json[300])
     for(int i=0; i< sparkleCount; i++) {
       Sparkle(255 ,0, 0, waitTime);      // Sparkle Red
       delay(20);
+      yield();
     }
     colorWipe(pixels.Color(255 ,0, 0), 0); // set all neopixels back to Red
   }
@@ -1250,7 +1303,7 @@ void parseJSON(char json[300])
  else if (Line == "--")
  {
   Serial.println("LINE/TRAIN OUT OF SERVICE");
-  colorWipe(pixels.Color(76, 0, 91), 0); // set all neopixels to Magenta
+  colorWipe(pixels.Color(51, 0, 102), 0); // set all neopixels to Magenta
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Out of Service");
@@ -1276,7 +1329,7 @@ void parseJSON(char json[300])
  else if (Line == "No")
  {
   Serial.println("No Passenger");
-  colorWipe(pixels.Color(76, 0, 91), 0); // set all neopixels to Magenta
+  colorWipe(pixels.Color(51, 0, 102), 0); // set all neopixels to Magenta
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("No Passenger");
@@ -1301,7 +1354,7 @@ void parseJSON(char json[300])
  else
  {
   Serial.println("LINE UNKNOWN");
-  colorWipe(pixels.Color(76, 0, 91), 0); // set all neopixels to Magenta
+  colorWipe(pixels.Color(51, 0, 102), 0); // set all neopixels to Magenta
   matrix.print(Min);
   matrix.writeDisplay();
   
@@ -1389,7 +1442,7 @@ void RestartNetwork()
     lcd.setCursor(0,0);
     lcd.print("Wifi Fail: Rebooting");
     
-    delay(5000);
+    delay(3000);
     ESP.restart();
   }
   ArduinoOTA.begin();  
@@ -1401,7 +1454,7 @@ void RestartNetwork()
   lcd.print("WiFi: Connected");
   lcd.setCursor(0,2);
   lcd.print(WiFi.localIP());
-  delay(2000);
+  delay(1000);
 }
 
 void FadeInOut(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
@@ -1486,5 +1539,5 @@ void loop()
   DetermineStation();
 
   // ---------- USER CODE GOES HERE ----------
-yield();
+  yield();
 }
