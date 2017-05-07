@@ -25,6 +25,7 @@ Project Breakdown:
     * brd - boarding
     * oos - out of service
     * no  - no passenger
+    * na  - metro has no data (null return from api call)
 * 20x4 LCD
     * Displays station updates
         * LN   - Line
@@ -90,4 +91,5 @@ If for some reason, the network ESP8266 network configuration is incorrect, the 
         
 ### **Recognition and Credit**
 Thanks to WMATA for providing the API!
+Thanks to Mike Rankin for the example parsing code!
 
