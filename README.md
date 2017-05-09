@@ -9,6 +9,8 @@ Brian Leschke 2017
 
 This project utilizes an Adafruit Huzzah esp8266, 24 count neopixel ring (line color), 7-segment serial LED (arrival time in minutes), and 20x4 serial LCD screen (station updates) to display train arrival times per station using the DC metro system api (WMATA). 
 
+An Adafruit Huzzah programmed with the Arduino Software using and FTDI cable will attempt to connect to the wifi network specified in the code. If for some reason it does not connect, the ESP8266 CPU will restart and continue trying. Once it connects to the wifi network, it will attempt to connect to WMATA's API "api.wmata.com" using a subscription key. If successful, it will look for the station information and then based on what if available, display the train arrival time and station information.
+
 This project was created for those who hate looking at a phone app for train arrival times for your station.
 
 Project Breakdown:
