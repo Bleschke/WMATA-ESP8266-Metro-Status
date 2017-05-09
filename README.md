@@ -2,11 +2,14 @@
 
 Brian Leschke 2017
  
- ** Update 4/30/17: Fully Working release!
+- Update 4/30/17: Fully Working release!
+- Update 5/7/17: Project Submitted to 2017 Hackaday Prize Contest
 
 ## **Overview**
 
- An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 20x4 LCD screen (station updates).
+This project utilizes an Adafruit Huzzah esp8266, 24 count neopixel ring (line color), 7-segment serial LED (arrival time in minutes), and 20x4 serial LCD screen (station updates) to display train arrival times per station using the DC metro system api (WMATA). 
+
+This project was created for those who hate looking at a phone app for train arrival times for your station.
 
 Project Breakdown:
 * Neopixel Ring
