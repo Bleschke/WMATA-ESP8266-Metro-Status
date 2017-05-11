@@ -453,7 +453,7 @@ void DetermineStation()
 
 void MetroCheckA()
 {
-  RestartNetwork();
+  //RestartNetwork();
   yield();
   lcd.clear();
   lcd.setCursor(0,0);
@@ -538,7 +538,7 @@ void MetroCheckA()
 
 void MetroCheckB()
 {
-  RestartNetwork();
+  //RestartNetwork();
   yield();
   lcd.clear();
   lcd.setCursor(0,0);
@@ -621,7 +621,7 @@ void MetroCheckB()
               
 void MetroCheckC()
 {
-  RestartNetwork();
+  //RestartNetwork();
   yield();
   lcd.clear();
   lcd.setCursor(0,0);
@@ -704,7 +704,7 @@ void MetroCheckC()
               
 void MetroCheckD()
 {
-  RestartNetwork();
+  //RestartNetwork();
   yield();
   lcd.clear();
   lcd.setCursor(0,0);
@@ -1459,7 +1459,7 @@ void RestartNetwork()
 
 void FadeInOut(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
 
-  for(uint8_t b=128; b > 60; b--) {
+  for(uint8_t b=120; b > 50; b--) {
      for(uint8_t i=0; i < pixels.numPixels(); i++) {
         pixels.setPixelColor(i, red*b/255, green*b/255, blue*b/255);
      }
@@ -1467,7 +1467,7 @@ void FadeInOut(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
      delay(wait);
   }
 
-  for(uint8_t b=60; b <128; b++) {
+  for(uint8_t b=50; b <120; b++) {
      for(uint8_t i=0; i < pixels.numPixels(); i++) {
         pixels.setPixelColor(i, red*b/255, green*b/255, blue*b/255);
      }
@@ -1479,7 +1479,7 @@ void FadeInOut(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
 // Fill the dots one after the other with a color
 void colorWipe(uint32_t c, uint8_t wait) {
   for(uint16_t i=0; i<pixels.numPixels(); i++) {
-      pixels.setBrightness(128);
+      pixels.setBrightness(100);
       pixels.setPixelColor(i, c);
       pixels.show();
       delay(wait);
@@ -1494,7 +1494,7 @@ void rainbowCycle(uint8_t wait) {
     for(i=0; i< pixels.numPixels(); i++) {
       pixels.setPixelColor(i, Wheel(((i * 256 / pixels.numPixels()) + j) & 255));
     }
-    pixels.setBrightness(128);
+    pixels.setBrightness(100);
     pixels.show();
     delay(wait);
   }
@@ -1516,7 +1516,7 @@ uint32_t Wheel(byte WheelPos) {
 
 void Sparkle(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
   int Pixel = random(NUMPIXELS);
-  pixels.setBrightness(128);
+  pixels.setBrightness(100);
   pixels.setPixelColor(Pixel, pixels.Color(red, green, blue)); 
   pixels.show();
   delay(wait);
