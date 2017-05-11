@@ -155,7 +155,7 @@ void setup()
   
   colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
   pixels.show(); // This sends the updated pixel color to the hardware.
-  pixels.setBrightness(128);
+  pixels.setBrightness(100);
   rainbowCycle(10);  // Loading screen
 
   WiFi.begin(ssid, password);
