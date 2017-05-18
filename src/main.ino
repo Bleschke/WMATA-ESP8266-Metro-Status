@@ -1,6 +1,6 @@
 /* 
  * Brian Leschke
- * May 6, 2017
+ * May 18, 2017
  * Adafruit Huzzah WMATA ESP8266 Metro Status
  * An ESP8266 will control a neopixel ring (metro line), 7-segment LED (arrival time), and 16x4 LCD screen (station updates).
  * Version 1.0
@@ -25,6 +25,7 @@
  * 5/1/2017  - added "No passenger", "brd", "arr" and simplified the wifi and OTA code.
  * 5/2/2017  - stabilized network connection. Added NetworkRestart()
  * 5/6/2017  - stabilized device with more "yield()" and added added code to determine if metro has no data (null return from api call).
+ * 5/18/2017 - fixed minor bugs
  * 
  * 
  *
@@ -490,7 +491,7 @@ void MetroCheckA()
     boolean quote = false; int nn = false;                      // if quote=fals means no quotes so comma means break
     while (!client.find(metroConds[j]))                         // If metro condition data is not available, try again.
     {
-      colorWipe(pixels.Color(51, 0, 102), 0); // set all neopixels to Magenta
+      colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
       matrix.clear();
       matrix.writeDigitRaw(1, B01010100);  // 7 Segment LED "n"
       matrix.writeDigitRaw(3, B01110111);  // 7 Segment LED "a"
@@ -574,7 +575,7 @@ void MetroCheckB()
     boolean quote = false; int nn = false;                      // if quote=fals means no quotes so comma means break
     while (!client.find(metroConds[j]))                         // If metro condition data is not available, try again.
     {
-      colorWipe(pixels.Color(51, 0, 102), 0); // set all neopixels to Magenta
+      colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
       matrix.clear();
       matrix.writeDigitRaw(1, B01010100);  // 7 Segment LED "n"
       matrix.writeDigitRaw(3, B01110111);  // 7 Segment LED "a"
@@ -657,7 +658,7 @@ void MetroCheckC()
     boolean quote = false; int nn = false;                      // if quote=fals means no quotes so comma means break
     while (!client.find(metroConds[j]))                         // If metro condition data is not available, try again.
     {
-      colorWipe(pixels.Color(51, 0, 102), 0); // set all neopixels to Magenta
+      colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
       matrix.clear();
       matrix.writeDigitRaw(1, B01010100);  // 7 Segment LED "n"
       matrix.writeDigitRaw(3, B01110111);  // 7 Segment LED "a"
@@ -740,7 +741,7 @@ void MetroCheckD()
     boolean quote = false; int nn = false;                      // if quote=fals means no quotes so comma means break
     while (!client.find(metroConds[j]))                         // If metro condition data is not available, try again.
     {
-      colorWipe(pixels.Color(51, 0, 102), 0); // set all neopixels to Magenta
+      colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
       matrix.clear();
       matrix.writeDigitRaw(1, B01010100);  // 7 Segment LED "n"
       matrix.writeDigitRaw(3, B01110111);  // 7 Segment LED "a"
@@ -799,7 +800,7 @@ void parseJSON(char json[300])
 }
 
  
- int Car                      = root["Car"];
+ int Car                   = root["Car"];
  const char* Destination      = root["Destination"];
  const char* DestinationCode  = root["DestinationCode"];
  const char* DestinationName  = root["DestinationName"];
@@ -834,7 +835,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Car);
   lcd.print("  ");
-  lcd.print(Destination);
+  lcd.print(DestinationName);
   lcd.print("  ");
   lcd.print(CMin);
   
@@ -917,7 +918,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Car);
   lcd.print("  ");
-  lcd.print(Destination);
+  lcd.print(DestinationName);
   lcd.print("  ");
   lcd.print(CMin);
 
@@ -997,7 +998,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Car);
   lcd.print("  ");
-  lcd.print(Destination);
+  lcd.print(DestinationName);
   lcd.print("  ");
   lcd.print(CMin);
     
@@ -1076,7 +1077,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Car);
   lcd.print("  ");
-  lcd.print(Destination);
+  lcd.print(DestinationName);
   lcd.print("  ");
   lcd.print(CMin);
     
@@ -1155,7 +1156,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Car);
   lcd.print("  ");
-  lcd.print(Destination);
+  lcd.print(DestinationName);
   lcd.print("  ");
   lcd.print(CMin);
     
@@ -1234,7 +1235,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Car);
   lcd.print("  ");
-  lcd.print(Destination);
+  lcd.print(DestinationName);
   lcd.print("  ");
   lcd.print(CMin);
 
@@ -1303,7 +1304,7 @@ void parseJSON(char json[300])
  else if (Line == "--")
  {
   Serial.println("LINE/TRAIN OUT OF SERVICE");
-  colorWipe(pixels.Color(51, 0, 102), 0); // set all neopixels to Magenta
+  colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Out of Service");
@@ -1316,7 +1317,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Car);
   lcd.print("  ");
-  lcd.print(Destination);
+  lcd.print(DestinationName);
   lcd.print("  ");
   lcd.print(CMin);
 
@@ -1329,7 +1330,7 @@ void parseJSON(char json[300])
  else if (Line == "No")
  {
   Serial.println("No Passenger");
-  colorWipe(pixels.Color(51, 0, 102), 0); // set all neopixels to Magenta
+  colorWipe(pixels.Color(0 ,0, 0), 0); // set all neopixels to OFF
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("No Passenger");
@@ -1342,7 +1343,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Car);
   lcd.print("  ");
-  lcd.print(Destination);
+  lcd.print(DestinationName);
   lcd.print("  ");
   lcd.print(CMin);
 
@@ -1370,7 +1371,7 @@ void parseJSON(char json[300])
   lcd.print("  ");
   lcd.print(Car);
   lcd.print("  ");
-  lcd.print(Destination);
+  lcd.print(DestinationName);
   lcd.print("  ");
   lcd.print(CMin);
  }
@@ -1479,8 +1480,8 @@ void FadeInOut(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
 // Fill the dots one after the other with a color
 void colorWipe(uint32_t c, uint8_t wait) {
   for(uint16_t i=0; i<pixels.numPixels(); i++) {
-      pixels.setBrightness(100);
       pixels.setPixelColor(i, c);
+      pixels.setBrightness(100);
       pixels.show();
       delay(wait);
   }
@@ -1516,8 +1517,8 @@ uint32_t Wheel(byte WheelPos) {
 
 void Sparkle(uint8_t red, uint8_t green, uint8_t blue, uint8_t wait) {
   int Pixel = random(NUMPIXELS);
-  pixels.setBrightness(100);
   pixels.setPixelColor(Pixel, pixels.Color(red, green, blue)); 
+  pixels.setBrightness(100);
   pixels.show();
   delay(wait);
   pixels.setPixelColor(Pixel,0,0,0);
