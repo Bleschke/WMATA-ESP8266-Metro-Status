@@ -4,7 +4,6 @@ Brian Leschke 2017
  
 - Update 4/30/17: Fully Working release!
 - Update 5/7/17: Project Submitted to 2017 Hackaday Prize Contest
-- Update 5/18/17: Planning for Blynk Implementation 
 
 ## **Overview**
 
