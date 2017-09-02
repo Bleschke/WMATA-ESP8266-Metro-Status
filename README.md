@@ -22,7 +22,7 @@ Project Breakdown:
         * GR - GREEN
         * BL - BLUE
         * SV - SILVER
-        * PL - Purple (Future implementation)
+        * PL - PURPLE (Future implementation)
     * Fades in-out upon arrival (1-3 min)
     * Sparkle flash upon boarding (0-1 min)
 * 7-Segment LED
